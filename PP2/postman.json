@@ -1,0 +1,2493 @@
+{
+	"info": {
+		"_postman_id": "b1d2fe92-a32d-4b77-a041-baab8d70faa5",
+		"name": "Scriptorium",
+		"description": "Scriptorium API testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39399881",
+		"_collection_link": "https://scriptorium-5895.postman.co/workspace/309-Scriptorium-Workspace~429d549a-d6e3-40d8-88d5-5b6ab487be94/collection/39399881-b1d2fe92-a32d-4b77-a041-baab8d70faa5?action=share&source=collection_link&creator=39399881"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "registerUser",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"firstName\":\"first\",\"lastName\":\"last\",\"email\":\"a@a.com\",\"password\":\"a\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/register",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "loginUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();\r",
+									"pm.globals.set('token', response.accessToken);\r",
+									"pm.globals.set('userId', response.user.id);\r",
+									"pm.globals.set('refreshtoken', response.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"a@a.com\",\"password\":\"a\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/login",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_loggin: wrong user or password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();\r",
+									"pm.globals.set('token', response.accessToken);\r",
+									"pm.globals.set('userId', response.user.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"kkkkk@a.com\",\"password\":\"wrong\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/login",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refreshTokens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"if (pm.response.code === 200 && jsonData.accessToken) {",
+									"    pm.globals.set(\"token\", jsonData.accessToken);",
+									"    console.log(\"Global token updated with new access token:\", jsonData.accessToken);",
+									"} else {",
+									"    console.log(\"Failed to refresh token or access token missing in response.\");",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshtoken}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/refresh",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_refresh: wrong refresh token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"if (pm.response.code === 200 && jsonData.accessToken) {",
+									"    pm.globals.set(\"token\", jsonData.accessToken);",
+									"    console.log(\"Global token updated with new access token:\", jsonData.accessToken);",
+									"} else {",
+									"    console.log(\"Failed to refresh token or access token missing in response.\");",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"1111\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/refresh",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProfile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/users/profile",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateProfile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"b\",\n  \"lastName\": \"b\",\n  \"email\": \"b@b.com\",\n  \"avatar\": \"LOL\",\n  \"phoneNumber\": \"1234567890\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/profile",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "adminLoggin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();",
+									"pm.globals.set('admintoken', response.accessToken);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"admin@admin.com\",\n    \"password\":\"adminpassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/login",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changePassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oldPassword\": \"a\",\n  \"newPassword\": \"b\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/changepassword",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"changepassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_changePassword: wrong old password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oldPassword\": \"ssssss\",\n  \"newPassword\": \"b\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/users/changepassword",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"changepassword"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "execute",
+			"item": [
+				{
+					"name": "executePython",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"print(\\\"Hello World from python!\\\")\",\r\n    \"language\": \"python\",\r\n    \"stdin\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "executeJS",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"console.log(\\\"Hello World from JS!\\\")\",\r\n    \"language\": \"javascript\",\r\n    \"stdin\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "executeJava",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"public class Main {\\n    public static void main(String[] args) {\\n        System.out.println(\\\"Hello, World from Java!\\\");\\n    }\\n}\",\r\n    \"language\": \"java\",\r\n    \"stdin\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "executeC",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"#include <stdio.h>\\n\\nint main() {\\n    printf(\\\"Hello, World!\\\\n\\\");\\n    return 0;\\n}\",\r\n    \"language\": \"c\",\r\n    \"stdin\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "executeC++",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"#include <iostream>\\n\\nint main() {\\n    std::cout << \\\"Hello, World!\\\" << std::endl;\\n    return 0;\\n}\",\r\n    \"language\": \"cpp\",\r\n    \"stdin\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "execute: stdin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"def main():\\n    number = input()\\n    print(f\\\"hello, {number}\\\")\\n\\nif __name__ == \\\"__main__\\\":\\n    main()\",\r\n    \"language\": \"python\",\r\n    \"stdin\": \"15815\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "execute_Invalid: No language",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"console.log(\\\"Hello World from invalid!\\\")\",\r\n    \"stdin\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "execute_Invalid: No code",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"language\": \"python\",\r\n    \"stdin\": \"15815\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "execute_Invalid: Unsupported language",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"print(\\\"Hello, World from R!\\\")\",\r\n    \"language\": \"r\",\r\n    \"stdin\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "execute_Invalid: Method Invalid",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\": \"print(\\\"Hello World from python!\\\")\",\r\n    \"language\": \"python\",\r\n    \"stdin\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/execute",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"execute"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "The execute api",
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "templates",
+			"item": [
+				{
+					"name": "createTemplate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"My first template\", \"explaination\":\"This is my first template\", \"content\":\"console.log(\\\"Hello\\\")\", \"tags\":\"testing\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createTemplateNoTag",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"My no-tag template\", \"explaination\":\"This is a template\", \"content\":\"console.log(\\\"Hello\\\")\", \"tags\":\"\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createTemplateMultitag",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"All the tags\", \"explaination\":\"Multiple tags\", \"content\":\"console.log(\\\"Hello tags!\\\")\", \"tags\":\"testing,test2,3\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create_Invalid: No Auth",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"My first template\", \"explaination\":\"This is my first template\", \"content\":\"console.log(\\\"Hello\\\")\", \"tags\":\"testing\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create_Invalid: Missing Title",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"explaination\":\"This is my first template\", \"content\":\"console.log(\\\"Hello\\\")\", \"tags\":\"testing\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOneTemplate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/1",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOne_Invalid: Template DNE",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"[UPDATED] My first template\", \"explaination\":\"This is my first template, now updated\", \"content\":\"console.log(\\\"Hello? This is new\\\")\", \"tags\":\"testing\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/-999",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"-999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllTemplatesDefault",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllTemplatesPage2",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates?page=2&itemPerPage=3",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "itemPerPage",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllTemplatesCurrentUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates?userId={{userId}}",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchTemplatesByTitle",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates?title=template",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "template"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchTemplatesByTag",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates?tags=test2",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "tags",
+									"value": "test2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchTemplatesByMultiTag",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates?tags=testing,3",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "tags",
+									"value": "testing,3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateTemplateFull",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"[UPDATED] My first template\", \"explaination\":\"This is my first template, now updated\", \"content\":\"console.log(\\\"Hello? This is new\\\")\", \"tags\":\"testing\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/1",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateTemplateTitle",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"[UPDATED Title] My first template\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/1",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateTemplatePartial",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"explaination\":\"This is my first template, now PARTIALLY updated\", \"tags\":\"new_tag, more_tag\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/1",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update_Invalid: No Auth",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"[UPDATED] My first template\", \"explaination\":\"This is my first template, now updated\", \"content\":\"console.log(\\\"Hello? This is new\\\")\", \"tags\":\"testing\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/1",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update_Invalid: Template DNE",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\":\"[UPDATED] My first template\", \"explaination\":\"This is my first template, now updated\", \"content\":\"console.log(\\\"Hello? This is new\\\")\", \"tags\":\"testing\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/-999",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"-999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "forkTemplate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"templateId\":\"4\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/fork",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"fork"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fork_Invalid: No Auth",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"templateId\":\"1\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/fork",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"fork"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fork_Invalid: Template DNE",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"templateId\":\"-999\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/fork",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"fork"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteTemplate",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/1",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete_Invalid: No Auth",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/1",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete_Invalid: Template DNE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:{{port}}/api/templates/-999",
+							"host": [
+								"localhost"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"templates",
+								"-999"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "blog-post",
+			"item": [
+				{
+					"name": "viewBlog-post[visitor]",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "releaseNewBlog-post",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"test blog\",\n  \"description\": \"testttttt\",\n  \"content\": \"testttt\",\n  \"tags\": [\"JavaScript\", \"Next.js\", \"Prisma\"]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-post",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "viewSpecificBlog-post[visitor]",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateBlog-post",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test for PUT\",\n  \"description\": \"putttttt\",\n  \"content\": \"puttttt\",\n  \"tags\": [\"JavaScript\", \"Updated Tag\"]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-post/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateBlog-post Invalid No Auth",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admintoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Test for PUT\",\n  \"description\": \"putttttt\",\n  \"content\": \"puttttt\",\n  \"tags\": [\"JavaScript\", \"Updated Tag\"]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-post/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "InvalidUpdateBlogPost: it is hidden from admin",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"test blog\",\n  \"description\": \"testttttt\",\n  \"content\": \"testttt\",\n  \"tags\": [\"JavaScript\", \"Next.js\", \"Prisma\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-post/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteBlog-post",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/6",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_deletion: unauthorized to delete (others)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admintoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchThroughTag",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?tag=JavaScript",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "tag",
+									"value": "JavaScript"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchThroughTitle",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?title=test",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "test"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sortByRatings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?sortBy=rating",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "sortBy",
+									"value": "rating"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchThroughContent",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?content=test",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "content",
+									"value": "test"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sortAscendingly",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?order=asc",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "order",
+									"value": "asc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sortByCreatedAt",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?sortBy=createdAt",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchThroughPageNumbers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?page=1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchThroughNumberOfItemsPerPage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?limit=3",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "multi-search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-post/search?sortBy=createdAt&title=test&tag=JavaScript",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"search"
+							],
+							"query": [
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "title",
+									"value": "test"
+								},
+								{
+									"key": "tag",
+									"value": "JavaScript"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_link: unauthorized to link others' post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admintoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"templateIds\": [1]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-post/1/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"1",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_link: wrong post id",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"templateIds\": [1]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-post/1000/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"1000",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_link: wrong template id",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"templateIds\": [1000]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-post/1/templates",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"1",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchUserBlogPosts(canViewHiddenPosts)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-post/searchmine",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-post",
+								"searchmine"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "vote",
+			"item": [
+				{
+					"name": "voteUpORDown",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"postId\": 1,    \n  \"type\": \"upvote\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/votes/vote",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"votes",
+								"vote"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_Vote: AlreadyVoted",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"postId\": 1,    \n  \"type\": \"upvote\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/votes/vote",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"votes",
+								"vote"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changeVoteType",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"postId\": 1,    \n  \"type\": \"downvote\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/votes/vote",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"votes",
+								"vote"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "checkVote",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/votes/1?type=post",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"votes",
+								"1"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "post"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "report",
+			"item": [
+				{
+					"name": "reportBlog-post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"postId\": 1,\n  \"reason\": \"Inappropriate content\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/report",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"report"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reportBlog-comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"commentId\": 1,\n  \"reason\": \"Inappropriate content\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/report",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"report"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "adminViewReports",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admintoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/admin/reports",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"admin",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "adminHidePost",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admintoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"postId\": 1,\n  \"hidden\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/admin/reports",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"admin",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "adminHideComment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admintoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"commentId\": 1,\n  \"hidden\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/admin/reports",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"admin",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "blog-comment",
+			"item": [
+				{
+					"name": "viewBlog-comment[visitors]",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/blog-comment?postId=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-comment"
+							],
+							"query": [
+								{
+									"key": "postId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "commentMake",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"test\",\n  \"postId\": 1\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-comment",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-comment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_comment: wrong post id",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"test\",\n  \"postId\": 100\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-comment",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-comment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "blog-commentModification",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"modify test\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-comment/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-comment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_modification: wrong comment id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"modify\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/blog-comment/1000",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-comment",
+								"1000"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_deletion: unauthorized to delete(others)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admintoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-comment/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-comment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid_deletion: wrong comment id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/api/blog-comment/10000",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"blog-comment",
+								"10000"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
