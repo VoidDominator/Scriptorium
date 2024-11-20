@@ -20,8 +20,8 @@ export default function App({ Component, pageProps }: AppProps) {
           <AppSidebar className="h-full" user={mockUser} />
 
           {/* Main content */}
-          <main className="flex-1 overflow-auto">
-            <div className="h-full">
+          <main className="flex-1 h-full">
+            <div className="flex h-full">
               <Component {...pageProps} />
             </div>
           </main>

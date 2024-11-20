@@ -4,6 +4,7 @@ import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { SidebarTrigger } from "../ui/sidebar";
 
 import { RotateCcw } from "lucide-react";
 
@@ -15,9 +16,9 @@ import { presets } from "./data/presets";
 
 export default function Editor() {
   return (
-    <>
-      <div className="hidden h-full flex-col md:flex">
+      <div className="flex h-full flex-col">
         <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
+          <SidebarTrigger />
           <h2 className="text-lg font-semibold">Editor</h2>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
             <PresetSelector presets={presets} />
@@ -28,7 +29,7 @@ export default function Editor() {
           </div>
         </div>
         <Separator />
-        <Tabs defaultValue="complete" className="flex-1">
+        <Tabs defaultValue="complete" className="flex-1 flex flex-col">
           <div className="container h-full py-6">
             <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_200px]">
               <div className="hidden flex-col space-y-4 sm:flex md:order-2">
@@ -217,11 +218,11 @@ export default function Editor() {
                 <TopPSelector defaultValue={[0.9]} /> */}
               </div>
               <div className="md:order-1">
-                <TabsContent value="complete" className="mt-0 border-0 p-0">
+                <TabsContent value="complete" className="flex-1 flex flex-col mt-0 border-0 p-0">
                   <div className="flex h-full flex-col space-y-4">
                     <Textarea
                       placeholder="print('Hello, World!')"
-                      className="min-h-[400px] flex-1 p-4 md:min-h-[700px] lg:min-h-[700px]"
+                      className="min-h-[400px] flex-1 p-4 md:min-h-[500px] lg:min-h-[700px]"
                     />
                     <div className="flex items-center space-x-2">
                       <Button>Submit</Button>
@@ -237,7 +238,7 @@ export default function Editor() {
                     <div className="grid h-full grid-rows-2 gap-6 lg:grid-cols-2 lg:grid-rows-1">
                       <Textarea
                         placeholder="print('Hi!')"
-                        className="h-full min-h-[300px] lg:min-h-[700px] xl:min-h-[700px]"
+                        className="h-full min-h-[300px] lg:min-h-[500px] xl:min-h-[700px]"
                       />
                       <div className="rounded-md border bg-muted"></div>
                     </div>
@@ -286,6 +287,5 @@ export default function Editor() {
           </div>
         </Tabs>
       </div>
-    </>
   );
 }
