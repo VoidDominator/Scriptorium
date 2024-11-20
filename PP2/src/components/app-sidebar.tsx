@@ -1,16 +1,14 @@
 import * as React from "react"
+import Link from "next/link"
 import {
-  AudioWaveform,
   Book,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
   SquareTerminal,
+  Bot,
+  BookOpen,
+  Frame,
+  PieChart,
+  Map,
+  Contact
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -24,111 +22,84 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-const data = {
-  user: {
-    name: "default-user",
-    email: "example@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Code Compiler",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Getting Started",
-          url: "#",
-        },
-        {
-          title: "Tutorial",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Blogs",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Template",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  settings: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+interface User {
+  name: string
+  email: string
+  avatar: string
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: User | null // User info or null if not logged in
+}
+
+const defaultUser = {
+  name: "Guest",
+  email: "guest@example.com",
+  avatar: "/avatars/default-avatar.jpg",
+}
+
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  const displayUser = user || defaultUser
+
   return (
     <Sidebar collapsible="icon" {...props}>
       {/* Sidebar Header */}
       <SidebarHeader className="p-4">
-        <div className="flex items-center space-x-2">
-          <Book className="h-6 w-6 text-primary" />
+        <Link href="/" className="flex items-center space-x-2">
+          <Book className="h-6 w-6 text-primary cursor-pointer" />
           <span className="font-semibold text-lg text-primary">Scriptorium</span>
-        </div>
+        </Link>
       </SidebarHeader>
 
       {/* Sidebar Content */}
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.settings} />
+        <NavMain
+          items={[
+            {
+              title: "Code Compiler",
+              url: "#",
+              icon: SquareTerminal,
+              isActive: true,
+              items: [
+                { title: "Getting Started", url: "#" },
+                { title: "Tutorial", url: "#" },
+                { title: "Settings", url: "#" },
+              ],
+            },
+            {
+              title: "Blogs",
+              url: "#",
+              icon: Bot,
+              items: [
+                { title: "History", url: "#" },
+                { title: "Starred", url: "#" },
+                { title: "Settings", url: "#" },
+              ],
+            },
+            {
+              title: "Template",
+              url: "#",
+              icon: BookOpen,
+              items: [
+                { title: "History", url: "#" },
+                { title: "Starred", url: "#" },
+                { title: "Settings", url: "#" },
+              ],
+            },
+          ]}
+        />
+        <NavProjects
+          projects={[
+            { name: "Profile", url: "#", icon: Contact },
+            { name: "Sales & Marketing", url: "#", icon: PieChart },
+            { name: "Travel", url: "#", icon: Map },
+          ]}
+        />
       </SidebarContent>
 
       {/* Sidebar Footer */}
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={displayUser} />
       </SidebarFooter>
 
       {/* Sidebar Rail */}

@@ -25,8 +25,8 @@ const Homepage: FC = () => {
           Your platform to write, share, and execute code seamlessly.
         </p>
         <div className="flex justify-center space-x-4">
-          <Button onClick={() => router.push("/auth/login")}>Log In</Button>
-          <Button variant="outline" onClick={() => router.push("/auth/signup")}>
+          <Button onClick={() => router.push("/users/signin")}>Log In</Button>
+          <Button variant="outline" onClick={() => router.push("/users/signup")}>
             Sign Up
           </Button>
         </div>
@@ -76,7 +76,7 @@ const Homepage: FC = () => {
             <p>Learn from others and share your own experiences through blog posts.</p>
           </CardContent>
           <CardFooter>
-            <Button variant="link" onClick={() => router.push("/blogs")}>
+            <Button variant="link" onClick={() => router.push("/blog/blog-post")}>
               Read Blogs
             </Button>
           </CardFooter>

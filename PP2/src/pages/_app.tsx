@@ -4,17 +4,24 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
+// Example: Static or dynamic user info
+const mockUser = {
+  name: "Guest", // Replace with dynamic user data after login
+  email: "john.doe@example.com",
+  avatar: "/avatars/john-doe.jpg",
+};
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <SidebarProvider>
-        <div className="flex h-screen">
+        <div className="flex h-screen w-screen">
           {/* Sidebar */}
-          <AppSidebar className="h-full" />
+          <AppSidebar className="h-full" user={mockUser} />
 
           {/* Main content */}
           <main className="flex-1 overflow-auto">
-            <div className="p-4">
+            <div className="h-full">
               <Component {...pageProps} />
             </div>
           </main>
