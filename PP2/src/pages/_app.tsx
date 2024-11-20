@@ -7,7 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 // Example: Static or dynamic user info
 const mockUser = {
   name: "Guest", // Replace with dynamic user data after login
-  email: "john.doe@example.com",
+  email: "visitor@example.com",
   avatar: "/avatars/john-doe.jpg",
 };
 
