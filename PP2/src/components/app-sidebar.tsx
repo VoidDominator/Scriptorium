@@ -99,7 +99,11 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 
       {/* Sidebar Footer */}
       <SidebarFooter>
-        <NavUser user={displayUser} />
+        {user ? (
+          <NavUser user={user} />
+        ) : (
+          <div className="text-center text-sm">Not logged in</div>
+        )}
       </SidebarFooter>
 
       {/* Sidebar Rail */}
