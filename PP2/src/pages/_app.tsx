@@ -8,7 +8,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <SidebarProvider>
-        <div className="flex h-screen">
+        <div className="flex h-screen w-screen">
           {/* Sidebar */}
           <AppSidebar className="h-full" />
 
