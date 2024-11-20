@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Book } from "lucide-react"
+import Link from "next/link"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -360,25 +361,32 @@ const SidebarHeader = React.forwardRef<
   return (
     <div
       ref={ref}
-      data-sidebar="header"
       className={cn(
-        "flex items-center gap-2 p-2 transition-[padding] duration-200 ease-linear",
-        state === "collapsed" ? "justify-center" : "justify-start", 
+        "p-2 transition-[padding] duration-200 ease-linear",
         className
       )}
       {...props}
     >
-      <Book className="h-6 w-6 text-primary" />
-      {state !== "collapsed" && (
-        <span
-          className="font-semibold text-lg text-primary transition-opacity duration-200 ease-linear"
-        >
-          Scriptorium
-        </span>
-      )}
+      <Link
+        href="/" 
+        className={cn(
+          "flex items-center gap-2 cursor-pointer",
+          state === "collapsed" ? "justify-center" : "justify-start" 
+        )}
+      >
+        <Book className="h-6 w-6 text-primary" />
+        {state !== "collapsed" && (
+          <span
+            className="font-semibold text-lg text-primary transition-opacity duration-200 ease-linear"
+          >
+            Scriptorium
+          </span>
+        )}
+      </Link>
     </div>
   );
 });
+
 SidebarHeader.displayName = "SidebarHeader";
 
 const SidebarFooter = React.forwardRef<
