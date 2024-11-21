@@ -5,10 +5,10 @@ import {
   SquareTerminal,
   Bot,
   BookOpen,
-  Frame,
   PieChart,
   Map,
-  Contact
+  Contact,
+  Settings
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -61,9 +61,9 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               icon: SquareTerminal,
               isActive: true,
               items: [
-                { title: "Getting Started", url: "#" },
+                { title: "Getting Started", url: "/editor" },
                 { title: "Tutorial", url: "#" },
-                { title: "Settings", url: "#" },
+                // { title: "Settings", url: "#" },
               ],
             },
             {
@@ -73,7 +73,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               items: [
                 { title: "History", url: "#" },
                 { title: "Starred", url: "#" },
-                { title: "Settings", url: "#" },
+                // { title: "Settings", url: "#" },
               ],
             },
             {
@@ -83,7 +83,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               items: [
                 { title: "History", url: "#" },
                 { title: "Starred", url: "#" },
-                { title: "Settings", url: "#" },
+                // { title: "Settings", url: "#" },
               ],
             },
           ]}
@@ -91,8 +91,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <NavProjects
           projects={[
             { name: "Profile", url: "#", icon: Contact },
-            { name: "Sales & Marketing", url: "#", icon: PieChart },
-            { name: "Travel", url: "#", icon: Map },
+            { name: "Settings", url: "#", icon: Settings },
           ]}
         />
       </SidebarContent>
