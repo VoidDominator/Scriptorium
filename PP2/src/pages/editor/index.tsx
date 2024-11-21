@@ -1,4 +1,4 @@
-import Editor from "@/components/template/editor";
+import Editor from "@/components/editor/editor";
 
 export default function Template() {
   return (
