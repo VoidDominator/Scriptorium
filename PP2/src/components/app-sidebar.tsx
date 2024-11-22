@@ -91,7 +91,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <NavProjects
           projects={[
             { name: "Profile", url: "#", icon: Contact },
-            { name: "Settings", url: "#", icon: Settings },
+            { name: "Settings", url: "/users/settings", icon: Settings },
           ]}
         />
       </SidebarContent>
