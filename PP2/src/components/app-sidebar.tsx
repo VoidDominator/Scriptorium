@@ -71,6 +71,8 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               url: "#",
               icon: Bot,
               items: [
+                { title: "View", url: "/blog/blog-post" },
+                { title: "New Ideas?", url: "/blog/create" },
                 { title: "History", url: "#" },
                 { title: "Starred", url: "#" },
                 // { title: "Settings", url: "#" },
