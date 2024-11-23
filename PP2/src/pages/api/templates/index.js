@@ -57,7 +57,7 @@ async function handler(req, res) {
         }
         // console.log(tags);
         // console.log(searchReq.tags.some.name.in);
-        try {
+        // try {
             const totalTemplates = await prisma.template.count({ where: searchReq });
             const totalPages = Math.ceil(totalTemplates / parseInt(itemPerPage));
 
@@ -73,10 +73,10 @@ async function handler(req, res) {
             );
             return res.json(templates, totalPages);
             // will return an empty list if no templates are found, this is a valid response, will be handled in the frontend
-        } catch (error) {
-            console.log(error);
-            return res.status(400).json({ "error": 'Failed to search templates, try again' });
-        }
+        // } catch (error) {
+        //     console.log(error);
+        //     return res.status(400).json({ "error": 'Failed to search templates, try again' });
+        // }
         
     } else {
         return res.status(405).json({ "error": "Method not allowed" });
