@@ -25,23 +25,76 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) {
+        throw new Error("Refresh token missing. Please log in again.");
+      }
+
+      const response = await fetch("/api/users/refresh", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken }), // Send refresh token in the body
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to refresh access token");
+      }
+
+      const data = await response.json();
+      if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+        return data.accessToken;
+      }
+      throw new Error("Access token missing in refresh response");
+    } catch (err) {
+      setError("Session expired. Please log in again.");
+      router.push("/users/signin");
+      throw err;
+    }
+  };
+
+  const fetchWithAuthRetry = async (url: string, options = {}) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        throw new Error("Access token missing. Please log in again.");
+      }
+
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...((options as any).headers || {}),
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        const newAccessToken = await refreshAccessToken();
+        return fetch(url, {
+          ...options,
+          headers: {
+            ...((options as any).headers || {}),
+            Authorization: `Bearer ${newAccessToken}`,
+          },
+        });
+      }
+
+      return response;
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+      throw err;
+    }
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const accessToken = localStorage.getItem("accessToken");
-
-        if (!accessToken) {
-          throw new Error("Access token missing. Please log in again.");
-        }
-
-        const response = await fetch("/api/users/profile", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const response = await fetchWithAuthRetry("/api/users/profile");
 
         if (!response.ok) {
           throw new Error("Failed to fetch profile.");
@@ -64,7 +117,7 @@ export default function ProfilePage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setNewAvatar(file);
-      setAvatarPreview(URL.createObjectURL(file)); // Show preview of the uploaded file
+      setAvatarPreview(URL.createObjectURL(file));
     }
   };
 
@@ -73,26 +126,17 @@ export default function ProfilePage() {
     setLoading(true);
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-
-      if (!accessToken) {
-        throw new Error("Access token missing. Please log in again.");
-      }
-
       const formData = new FormData();
       formData.append("firstName", profile.firstName);
       formData.append("lastName", profile.lastName);
       formData.append("email", profile.email);
       formData.append("phoneNumber", profile.phoneNumber);
       if (newAvatar) {
-        formData.append("avatar", newAvatar); // Include the new avatar file
+        formData.append("avatar", newAvatar);
       }
 
-      const response = await fetch("/api/users/profile", {
+      const response = await fetchWithAuthRetry("/api/users/profile", {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
         body: formData,
       });
 
@@ -115,11 +159,15 @@ export default function ProfilePage() {
     <div className="flex h-screen w-full items-center justify-center bg-muted">
       <Card className="w-full max-w-[600px] shadow-lg">
         <CardHeader className="flex flex-col items-center">
-          <Avatar className="h-24 w-24 mb-4">
-            <AvatarImage src={avatarPreview || "/default-avatar.png"} alt="User Avatar" />
-            <AvatarFallback>
-              {profile.firstName[0]}
-              {profile.lastName[0]}
+          <Avatar className="h-24 w-24 mb-4 overflow-hidden rounded-full border border-gray-300">
+            <AvatarImage
+              src={avatarPreview || "/default-avatar.png"}
+              alt="User Avatar"
+              className="h-full w-full object-cover"
+            />
+            <AvatarFallback className="flex items-center justify-center bg-muted-foreground text-white font-semibold text-lg">
+              {profile.firstName[0]?.toUpperCase()}
+              {profile.lastName[0]?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <CardTitle className="text-2xl">{`${profile.firstName} ${profile.lastName}`}</CardTitle>

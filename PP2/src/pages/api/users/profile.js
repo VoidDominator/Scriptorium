@@ -60,8 +60,8 @@ async function handler(req, res) {
         return res.status(500).json({ error: "Failed to process the request" });
       }
 
-      console.log("Parsed fields:", fields);
-      console.log("Parsed files:", files);
+      // console.log("Parsed fields:", fields);
+      // console.log("Parsed files:", files);
 
       try {
         // Extract and validate fields
