@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { ThumbsUp, ThumbsDown, Flag } from "lucide-react";
 
 interface Comment {
   id: string;
@@ -41,6 +42,8 @@ export default function BlogPostPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null); // Logged-in user info
+  const [reporting, setReporting] = useState(false); // Report modal state
+  const [reportReason, setReportReason] = useState(""); // Report reason
   const router = useRouter();
   const { id } = router.query;
 
@@ -86,7 +89,6 @@ export default function BlogPostPage() {
           .use(html)
           .process(data.content);
         setHtmlContent(processedContent.toString());
-        // console.log(processedContent.toString())
       } catch (err) {
         setError("Failed to load the blog post.");
       } finally {
@@ -122,6 +124,66 @@ export default function BlogPostPage() {
     }
   }, [id]);
 
+  const handleVote = async (type: "up" | "down") => {
+    if (!user) {
+      router.push("/users/signin");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/blog-post/${id}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({ type }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to vote.");
+      }
+
+      const updatedPost = await response.json();
+      setPost(updatedPost);
+    } catch (err) {
+      console.error("Error voting:", err);
+    }
+  };
+
+  const handleReport = async () => {
+    if (!user) {
+      router.push("/users/signin");
+      return;
+    }
+
+    if (!reportReason.trim()) return;
+
+    try {
+      const response = await fetch(`/api/report`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({
+          postId: id,
+          reason: reportReason,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to report content.");
+      }
+
+      setReporting(false);
+      setReportReason("");
+      alert("Content has been reported successfully.");
+    } catch (err) {
+      console.error("Error reporting content:", err);
+    }
+  };
+
   const handleAddComment = async () => {
     if (!user) {
       router.push("/users/signin");
@@ -150,9 +212,11 @@ export default function BlogPostPage() {
         throw new Error("Failed to add comment.");
       }
 
-      const newComment = await response.json();
-      setComments((prev) => [newComment, ...prev]);
-      setCommentContent("");
+      // const newComment = await response.json();
+      // setComments((prev) => [newComment, ...prev]);
+      // setCommentContent("");
+      setCommentContent(""); // empty the fields
+      fetchComments(1); // Reload the first page of comments
     } catch (err) {
       console.error("Error adding comment:", err);
     }
@@ -203,6 +267,22 @@ export default function BlogPostPage() {
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
 
+          {/* Voting and Reporting */}
+          <div className="flex items-center mt-4 space-x-4">
+            <Button variant="ghost" className="flex items-center" onClick={() => handleVote("up")}>
+              <ThumbsUp className="mr-2 h-4 w-4" />
+              {post.thumbsUp}
+            </Button>
+            <Button variant="ghost" className="flex items-center" onClick={() => handleVote("down")}>
+              <ThumbsDown className="mr-2 h-4 w-4" />
+              {post.thumbsDown}
+            </Button>
+            <Button variant="ghost" className="flex items-center ml-auto" onClick={() => setReporting(true)}>
+              <Flag className="mr-2 h-4 w-4" />
+              Report
+            </Button>
+          </div>
+
           <Separator />
 
           {/* Comments Section */}
@@ -250,6 +330,27 @@ export default function BlogPostPage() {
               </Button>
             )}
           </div>
+
+          {/* Report Modal */}
+          {reporting && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-md shadow-lg max-w-sm w-full">
+                <h2 className="text-lg font-semibold mb-4">Report Post</h2>
+                <Textarea
+                  placeholder="Enter your reason for reporting"
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  rows={4}
+                />
+                <div className="flex justify-end space-x-4 mt-4">
+                  <Button variant="secondary" onClick={() => setReporting(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleReport}>Submit</Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
