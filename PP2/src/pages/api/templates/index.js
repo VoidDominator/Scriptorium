@@ -71,7 +71,7 @@ async function handler(req, res) {
                     take: parseInt(itemPerPage)
                 }
             );
-            return res.json(templates, totalPages);
+            return res.json({ templates, totalPages });
             // will return an empty list if no templates are found, this is a valid response, will be handled in the frontend
         // } catch (error) {
         //     console.log(error);

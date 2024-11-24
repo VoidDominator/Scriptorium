@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/router"
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getPaginationRowModel, SortingState, getSortedRowModel } from "@tanstack/react-table"
+import { ColumnDef, flexRender } from "@tanstack/react-table"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -10,59 +10,41 @@ import { Button } from "@/components/ui/button"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  currentPage: number
+  totalPages: number
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+export function DataTable<TData, TValue>({ columns, data, currentPage, totalPages, setCurrentPage }: DataTableProps<TData, TValue>) {
   const router = useRouter()
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: true,
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    }
-  })
 
   return (
     <div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
+            <TableRow>
+              {columns.map((column) => (
+                <TableHead key={column.accessorKey as string}>
+                  {flexRender(column.header, {})}
+                </TableHead>
+              ))}
+            </TableRow>
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            {data.length ? (
+              data.map((row, index) => (
                 <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  key={index}
                   className="cursor-pointer"
-                  onClick={() => router.push(`/editor/${row.original.id}`)}
+                  onClick={() => router.push(`/editor/${(row as any).id}`)}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  {columns.map((column) => (
+                    <TableCell key={column.accessorKey as string}>
+                      {flexRender(
+                        column.cell,
+                        { getValue: () => (row as any)[column.accessorKey as string] }
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -81,16 +63,19 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
         >
           Previous
         </Button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
         >
           Next
         </Button>

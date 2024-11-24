@@ -7,7 +7,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import debounce from 'lodash/debounce';  // a deboucer function to delay the request
 
 async function getTemplates(queryParams: Record<string, string | number>) {
-  const queryString = new URLSearchParams(queryParams).toString();
+  const queryString = new URLSearchParams(queryParams as any).toString();
   const response = await fetch(`/api/templates?${queryString}`);
   return response.json();
 }
@@ -17,15 +17,29 @@ export default function TemplatesPage() {
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
   const [itemPerPage, setItemPerPage] = useState("10");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchData = debounce(async () => {
-      const templates = await getTemplates({
+      const response = await getTemplates({
         title,
         tags,
         itemPerPage,
+        page: currentPage,
       });
+
+      // Transform templates to match TemplateColumn structure
+      const templates = response.templates.map((template: any) => ({
+        id: template.id,
+        title: template.title,
+        description: template.explaination, // Map 'explaination' to 'description'
+        tags: template.tags.map((tag: any) => tag.name), // Extract tag names
+      }));
+
       setData(templates);
+      setTotalPages(response.totalPages);
+      console.log(templates);
     }, 300);
 
     fetchData();
@@ -34,7 +48,7 @@ export default function TemplatesPage() {
     return () => {
       fetchData.cancel();
     };
-  }, [title, tags, itemPerPage]);
+  }, [title, tags, itemPerPage, currentPage]);
 
   return (
     <div>
@@ -50,7 +64,7 @@ export default function TemplatesPage() {
           value={tags}
           onChange={(e) => setTags(e.target.value)}
         />
-        <Select value={itemPerPage} onValueChange={setItemPerPage}>
+        <Select value={itemPerPage} onValueChange={(value) => { setItemPerPage(value); setCurrentPage(1); }}>
           <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="Items per page" />
           </SelectTrigger>
@@ -64,7 +78,13 @@ export default function TemplatesPage() {
       </div>
 
       {/* Data Table */}
-      <DataTable<TemplateColumn, string> columns={columns} data={data} />
+      <DataTable
+        columns={columns}
+        data={data}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        setCurrentPage={setCurrentPage}
+      />
     </div>
   );
 }
