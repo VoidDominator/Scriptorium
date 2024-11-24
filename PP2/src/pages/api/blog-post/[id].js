@@ -14,7 +14,7 @@ async function handler(req, res) {
         where: { id: Number(id) },
         include: {
           user: {
-            select: { firstName: true, lastName: true }, // Select only necessary user data
+            select: { firstName: true, lastName: true, avatar: true,}, // Select only necessary user data
           },
           tags: {
             select: { name: true }, // Include tags with just the name

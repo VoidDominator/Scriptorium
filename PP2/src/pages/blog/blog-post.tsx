@@ -37,104 +37,21 @@ export default function BlogPostsPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [hydrated, setHydrated] = useState(false); // Track hydration
   const router = useRouter();
 
-  const refreshAccessToken = async () => {
-    try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (!refreshToken) {
-        throw new Error("Refresh token missing. Please log in again.");
-      }
-
-      const response = await fetch("/api/users/refresh", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to refresh access token");
-      }
-
-      const data = await response.json();
-      if (data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        return data.accessToken;
-      }
-      throw new Error("Access token missing in refresh response");
-    } catch (err) {
-      setError("Session expired. Please log in again.");
-      router.push("/users/signin");
-      throw err;
-    }
-  };
-
-  const fetchWithAuthRetry = async (url: string, options = {}) => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        throw new Error("Access token missing. Please log in again.");
-      }
-
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...((options as any).headers || {}),
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (response.status === 401) {
-        const newAccessToken = await refreshAccessToken();
-        return fetch(url, {
-          ...options,
-          headers: {
-            ...((options as any).headers || {}),
-            Authorization: `Bearer ${newAccessToken}`,
-          },
-        });
-      }
-
-      return response;
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-      throw err;
-    }
-  };
-
-  const fetchPosts = async (page = 1) => {
-    try {
-      setError(null);
-      const query = new URLSearchParams({
-        ...searchParams,
-        page: page.toString(),
-        limit: "10",
-      });
-
-      const response = await fetchWithAuthRetry(`/api/blog-post/search?${query.toString()}`);
-      if (!response.ok) throw new Error("Failed to fetch posts");
-
-      const data = await response.json();
-      setPosts(data.posts);
-      setPagination(data.pagination);
-    } catch (err) {
-      setError("Failed to load posts. Please try again.");
-    }
-  };
-
+  // Ensures content is rendered only after hydration
   useEffect(() => {
-    fetchPosts();
-  }, [searchParams]);
+    setHydrated(true);
 
-  useEffect(() => {
     const fetchUser = async () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) return;
 
       try {
-        const response = await fetchWithAuthRetry("/api/users/me");
+        const response = await fetch("/api/users/me", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
 
         if (response.ok) {
           const userData = await response.json();
@@ -147,6 +64,32 @@ export default function BlogPostsPage() {
 
     fetchUser();
   }, []);
+
+  const fetchPosts = async (page = 1) => {
+    try {
+      setError(null);
+      const query = new URLSearchParams({
+        ...searchParams,
+        page: page.toString(),
+        limit: "12",
+      });
+
+      const response = await fetch(`/api/blog-post/search?${query.toString()}`);
+      if (!response.ok) throw new Error("Failed to fetch posts");
+
+      const data = await response.json();
+      setPosts(data.posts);
+      setPagination(data.pagination);
+    } catch (err) {
+      setError("Failed to load posts. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    if (hydrated) {
+      fetchPosts();
+    }
+  }, [hydrated, searchParams]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchParams({ ...searchParams, title: e.target.value });
@@ -268,7 +211,7 @@ export default function BlogPostsPage() {
         </PaginationContent>
       </Pagination>
 
-      {user && (
+      {hydrated && user && (
         <div className="flex justify-center items-center mt-12">
           <Button onClick={createPost}>Publish Blog Post</Button>
         </div>

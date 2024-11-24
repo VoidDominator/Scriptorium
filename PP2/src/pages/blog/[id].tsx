@@ -2,35 +2,44 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { remark } from "remark";
+import html from "remark-html";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ThumbsUp, ThumbsDown, Flag } from "lucide-react";
+
+interface Comment {
+  id: string;
+  content: string;
+  createdAt: string;
+  user: { firstName: string; lastName: string };
+}
 
 interface BlogPost {
   id: string;
   title: string;
-  content: string;
+  content: string; // Markdown content
   createdAt: string;
   user: { firstName: string; lastName: string; avatar: string };
-  comments: {
-    id: string;
-    content: string;
-    thumbsUp: number;
-    thumbsDown: number;
-    user: { firstName: string; lastName: string; avatar: string };
-  }[];
   thumbsUp: number;
   thumbsDown: number;
 }
 
 export default function BlogPostPage() {
   const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [htmlContent, setHtmlContent] = useState<string>("");
+  const [comments, setComments] = useState<Comment[]>([]);
   const [commentContent, setCommentContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    totalItems: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 10,
+  });
+  const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null); // Logged-in user info
   const router = useRouter();
   const { id } = router.query;
@@ -71,6 +80,13 @@ export default function BlogPostPage() {
 
         const data = await response.json();
         setPost(data);
+
+        // Convert Markdown content to HTML using remark
+        const processedContent = await remark()
+          .use(html)
+          .process(data.content);
+        setHtmlContent(processedContent.toString());
+        // console.log(processedContent.toString())
       } catch (err) {
         setError("Failed to load the blog post.");
       } finally {
@@ -81,7 +97,37 @@ export default function BlogPostPage() {
     fetchPost();
   }, [id]);
 
-  const handleCommentSubmit = async () => {
+  const fetchComments = async (page = 1) => {
+    setCommentLoading(true);
+
+    try {
+      const response = await fetch(`/api/blog-comment?postId=${id}&page=${page}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch comments.");
+      }
+
+      const data = await response.json();
+      setComments(data.comments);
+      setPagination(data.pagination);
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchComments();
+    }
+  }, [id]);
+
+  const handleAddComment = async () => {
+    if (!user) {
+      router.push("/users/signin");
+      return;
+    }
+
     if (!commentContent.trim()) return;
 
     try {
@@ -91,27 +137,30 @@ export default function BlogPostPage() {
         return;
       }
 
-      const response = await fetch(`/api/blog-post/${id}/comments`, {
+      const response = await fetch("/api/blog-comment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ content: commentContent }),
+        body: JSON.stringify({ content: commentContent, postId: id }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit comment.");
+        throw new Error("Failed to add comment.");
       }
 
       const newComment = await response.json();
-      setPost((prev) => ({
-        ...prev!,
-        comments: [...prev!.comments, newComment],
-      }));
+      setComments((prev) => [newComment, ...prev]);
       setCommentContent("");
     } catch (err) {
-      console.error("Error submitting comment:", err);
+      console.error("Error adding comment:", err);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (pagination.currentPage < pagination.totalPages) {
+      fetchComments(pagination.currentPage + 1);
     }
   };
 
@@ -129,8 +178,12 @@ export default function BlogPostPage() {
               Released on {new Date(post.createdAt).toLocaleDateString()}
             </p>
             <div className="flex items-center">
-              <Avatar className="h-10 w-10 mr-4">
-                <AvatarImage src={post.user.avatar} alt="Author Avatar" />
+              <Avatar className="h-10 w-10 mr-4 overflow-hidden rounded-full border">
+                <AvatarImage
+                  src={post.user.avatar}
+                  alt="Author Avatar"
+                  className="h-full w-full object-cover"
+                />
                 <AvatarFallback>
                   {post.user.firstName[0]}
                   {post.user.lastName[0]}
@@ -144,82 +197,59 @@ export default function BlogPostPage() {
 
           <Separator />
 
-          {/* Content */}
-          <div className="my-6 text-lg">{post.content}</div>
+          {/* Render HTML Content */}
+          <div
+            className="markdown my-6 text-lg"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
 
           <Separator />
 
-          {/* Thumbs Up and Thumbs Down */}
-          <div className="flex items-center mt-4 space-x-4">
-            <Button variant="ghost" className="flex items-center">
-              <ThumbsUp className="mr-2 h-4 w-4" />
-              {post.thumbsUp}
-            </Button>
-            <Button variant="ghost" className="flex items-center">
-              <ThumbsDown className="mr-2 h-4 w-4" />
-              {post.thumbsDown}
-            </Button>
-            <Button variant="ghost" className="flex items-center ml-auto">
-              <Flag className="mr-2 h-4 w-4" />
-              Report
-            </Button>
-          </div>
-
-          <Separator />
-
-          {/* Comments */}
+          {/* Comments Section */}
           <div className="mt-6">
             <h2 className="text-2xl font-semibold mb-4">Comments</h2>
-            {post.comments.map((comment) => (
-              <div key={comment.id} className="mb-6">
-                <div className="flex items-center mb-2">
-                  <Avatar className="h-8 w-8 mr-4">
-                    <AvatarImage src={comment.user.avatar} alt="Commenter Avatar" />
-                    <AvatarFallback>
-                      {comment.user.firstName[0]}
-                      {comment.user.lastName[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p className="text-muted-foreground">
-                    {comment.user.firstName} {comment.user.lastName}
-                  </p>
-                </div>
-                <p className="mb-2">{comment.content}</p>
-                <div className="flex items-center space-x-4">
-                  <Button variant="ghost" className="flex items-center">
-                    <ThumbsUp className="mr-2 h-4 w-4" />
-                    {comment.thumbsUp}
-                  </Button>
-                  <Button variant="ghost" className="flex items-center">
-                    <ThumbsDown className="mr-2 h-4 w-4" />
-                    {comment.thumbsDown}
-                  </Button>
-                  <Button variant="ghost" className="flex items-center ml-auto">
-                    <Flag className="mr-2 h-4 w-4" />
-                    Report
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
 
-          {/* Add Comment */}
-          {user && (
-            <div className="mt-6">
-              <Textarea
-                placeholder="Add a comment..."
-                value={commentContent}
-                onChange={(e) => setCommentContent(e.target.value)}
-              />
-              <Button
-                className="mt-2"
-                onClick={handleCommentSubmit}
-                disabled={!commentContent.trim()}
-              >
-                Post Comment
+            {/* Add Comment */}
+            <Textarea
+              placeholder="Add a comment..."
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
+              rows={3}
+              className="mb-2"
+            />
+            <Button onClick={handleAddComment} disabled={!commentContent.trim()}>
+              {user ? "Post Comment" : "Log in to Comment"}
+            </Button>
+
+            {/* Comments List */}
+            {commentLoading ? (
+              <p className="mt-4 text-center">Loading comments...</p>
+            ) : (
+              comments.map((comment) => (
+                <div key={comment.id} className="mt-4">
+                  <div className="flex items-center">
+                    <Avatar className="h-8 w-8 mr-4 overflow-hidden rounded-full">
+                      <AvatarFallback>
+                        {comment.user.firstName[0]}
+                        {comment.user.lastName[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <p className="text-muted-foreground">
+                      {comment.user.firstName} {comment.user.lastName}
+                    </p>
+                  </div>
+                  <p className="mt-2">{comment.content}</p>
+                </div>
+              ))
+            )}
+
+            {/* Load More Button */}
+            {pagination.currentPage < pagination.totalPages && (
+              <Button onClick={handleLoadMore} className="mt-4">
+                Load More Comments
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>
