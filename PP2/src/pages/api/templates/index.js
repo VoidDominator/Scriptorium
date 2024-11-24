@@ -36,7 +36,7 @@ async function handler(req, res) {
         }
 
     } else if (req.method === 'GET') {
-        let { title, tags, content, userId, page, itemPerPage } = req.query;
+        let { title, tags, content, explaination, userId, page, itemPerPage } = req.query;
         if (itemPerPage === undefined || isNaN(parseInt(itemPerPage) || itemPerPage === '')) {
             itemPerPage = 10;
         }
@@ -48,6 +48,9 @@ async function handler(req, res) {
         }
         if (content !== undefined && content !== '') {
             searchReq.fileContent = {contains: content};
+        }
+        if (explaination !== undefined && explaination !== '') {
+            searchReq.explaination = {contains: explaination};
         }
         if (userId !== undefined && userId !== '') {
             searchReq.userId = parseInt(userId);
