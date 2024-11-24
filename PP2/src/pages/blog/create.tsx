@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from "react-markdown";
+import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 
 export default function CreateBlogPostPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null); // Store logged-in user info
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState(""); // Store raw Markdown
@@ -25,6 +26,23 @@ export default function CreateBlogPostPage() {
   const TITLE_MAX_LENGTH = 80;
   const DESCRIPTION_MAX_LENGTH = 100;
   const TAG_MAX_LENGTH = 10;
+
+  // Check if the user is logged in
+  useEffect(() => {
+    const redirectIfNotLoggedIn = async () => {
+      const response = await fetchWithAuthRetry("/api/users/me");
+      if (!response.ok) {
+        // If the user is not logged in, redirect immediately
+        router.replace("/users/signin");
+      } else {
+        // If logged in, set the user data
+        const userData = await response.json();
+        setUser(userData);
+      }
+    };
+  
+    redirectIfNotLoggedIn();
+  }, [router]);
 
   const handleAddTag = () => {
     if (newTag.length > TAG_MAX_LENGTH) {
@@ -59,11 +77,10 @@ export default function CreateBlogPostPage() {
     }
 
     try {
-      const response = await fetch("/api/blog-post", {
+      const response = await fetchWithAuthRetry("/api/blog-post", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({ title, description, content, tags }),
       });
@@ -100,7 +117,9 @@ export default function CreateBlogPostPage() {
               onChange={(e) => setTitle(e.target.value)}
               required
             />
-            <p className="text-sm text-gray-500">{title.length} / {TITLE_MAX_LENGTH}</p>
+            <p className="text-sm text-gray-500">
+              {title.length} / {TITLE_MAX_LENGTH}
+            </p>
           </div>
           <div>
             <Label htmlFor="description" className="mb-1">
@@ -114,7 +133,9 @@ export default function CreateBlogPostPage() {
               rows={3}
               required
             />
-            <p className="text-sm text-gray-500">{description.length} / {DESCRIPTION_MAX_LENGTH}</p>
+            <p className="text-sm text-gray-500">
+              {description.length} / {DESCRIPTION_MAX_LENGTH}
+            </p>
           </div>
           <div>
             <Label htmlFor="content" className="mb-1">
@@ -128,7 +149,11 @@ export default function CreateBlogPostPage() {
               rows={8}
               required
             />
-            <Button variant="ghost" onClick={() => setPreviewMode(!previewMode)} className="mt-2">
+            <Button
+              variant="ghost"
+              onClick={() => setPreviewMode(!previewMode)}
+              className="mt-2"
+            >
               {previewMode ? "Edit Mode" : "Preview Mode"}
             </Button>
             {previewMode && (
