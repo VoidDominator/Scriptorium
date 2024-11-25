@@ -1,9 +1,7 @@
 import * as React from "react"
 import { PopoverProps } from "@radix-ui/react-popover"
 import { Check, ChevronsUpDown } from "lucide-react"
-import { useMutationObserver } from "@/hooks/use-mutation-observer"
 
-import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
@@ -15,23 +13,23 @@ import { Language, LanguageType } from "./data/languages"
 interface LanguageSelectorProps extends PopoverProps {
   types: readonly LanguageType[]
   languages: Language[]
+  selectedLanguage: Language
+  setSelectedLanguage: React.Dispatch<React.SetStateAction<Language>>
 }
 
-export function LanguageSelector({ languages, types, ...props }: LanguageSelectorProps) {
+export function LanguageSelector({
+  languages,
+  types,
+  selectedLanguage,
+  setSelectedLanguage,
+  ...props
+}: LanguageSelectorProps) {
   const [open, setOpen] = React.useState(false)
-  const [selectedLanguage, setSelectedLanguage] = React.useState<Language>(languages[0])
-  const [peekedLanguage, setPeekedLanguage] = React.useState<Language>(languages[0])
+  const [peekedLanguage, setPeekedLanguage] = React.useState<Language>(selectedLanguage)
 
   return (
     <div className="grid gap-2">
       <HoverCard openDelay={200}>
-        {/* <HoverCardContent
-          align="start"
-          className="w-[260px] text-sm"
-          side="left"
-        >
-          Select from over 15 languages to code in.
-        </HoverCardContent> */}
         <HoverCardTrigger asChild>
           <Label htmlFor="language">Language</Label>
         </HoverCardTrigger>
@@ -116,17 +114,27 @@ interface LanguageItemProps {
 function LanguageItem({ language, isSelected, onSelect, onPeek }: LanguageItemProps) {
   const ref = React.useRef<HTMLDivElement>(null)
 
-  useMutationObserver(ref, (mutations) => {
-    mutations.forEach((mutation) => {
-      if (
-        mutation.type === "attributes" &&
-        mutation.attributeName === "aria-selected" &&
-        ref.current?.getAttribute("aria-selected") === "true"
-      ) {
-        onPeek(language)
-      }
+  React.useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "aria-selected" &&
+          ref.current?.getAttribute("aria-selected") === "true"
+        ) {
+          onPeek(language)
+        }
+      })
     })
-  })
+
+    if (ref.current) {
+      observer.observe(ref.current, { attributes: true })
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [language, onPeek])
 
   return (
     <CommandItem
@@ -136,9 +144,7 @@ function LanguageItem({ language, isSelected, onSelect, onPeek }: LanguageItemPr
       className="data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground"
     >
       {language.name}
-      <Check
-        className={cn("ml-auto", isSelected ? "opacity-100" : "opacity-0")}
-      />
+      <Check className={`ml-auto ${isSelected ? "opacity-100" : "opacity-0"}`} />
     </CommandItem>
   )
 }
