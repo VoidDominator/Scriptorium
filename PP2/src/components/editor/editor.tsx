@@ -5,9 +5,10 @@ import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { SidebarTrigger } from "../ui/sidebar";
+import { Progress } from "../ui/progress";
 
 import { RotateCcw } from "lucide-react";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import MonacoEditor from "@monaco-editor/react"
 
 import { PresetSelector } from "./preset-selector";
@@ -20,6 +21,9 @@ import { Language } from "./data/languages";
 export default function Editor() {
   const [code, setCode] = useState("print('Hello, World!')")
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(languages[0])
+  const [isExecuting, setIsExecuting] = useState(false)
+  const [elapsedTime, setElapsedTime] = useState(0)
+  const [output, setOutput] = useState("")
 
   function getMonacoLanguageId(languageName: string): string {
     switch (languageName.toLowerCase()) {
@@ -53,6 +57,42 @@ export default function Editor() {
         return "scala"
       default:
         return "plaintext"
+    }
+  }
+
+  const executeCode = async () => {
+    setIsExecuting(true)
+    setElapsedTime(0)
+    setOutput("")
+
+    const timer = setInterval(() => {
+      setElapsedTime((prev) => prev + 1)
+    }, 1000)
+
+    try {
+      const response = await fetch("/api/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: code,
+          language: getMonacoLanguageId(selectedLanguage.name),
+          stdin: "",
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setOutput(data.output)
+      } else {
+        setOutput(data.error)
+      }
+    } catch (error) {
+      setOutput("Error executing code.")
+    } finally {
+      clearInterval(timer)
+      setIsExecuting(false)
+      setElapsedTime(0)
     }
   }
 
@@ -164,11 +204,22 @@ export default function Editor() {
                     theme="vs-dark"
                   />
                   <div className="flex items-center space-x-2">
-                    <Button>Submit</Button>
-                    <Button variant="secondary">
-                      <span className="sr-only">Show history</span>
-                      <RotateCcw />
-                    </Button>
+                    {!isExecuting ? (
+                      <>
+                        <Button onClick={executeCode}>Execute</Button>
+                        <Button variant="secondary">
+                          <span className="sr-only">Show history</span>
+                          <RotateCcw />
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="w-full">
+                        <Progress value={(elapsedTime / 10) * 100} />
+                      </div>
+                    )}
+                  </div>
+                  <div id="stdout" className="rounded-md border bg-muted">
+                    <pre>{output}</pre>
                   </div>
                 </div>
               </TabsContent>
@@ -182,14 +233,24 @@ export default function Editor() {
                       onChange={(value) => setCode(value || "")}
                       theme="vs-dark"
                     />
-                    <div className="rounded-md border bg-muted"></div>
+                    <div id="stdout" className="rounded-md border bg-muted">
+                      <pre>{output}</pre>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Button>Submit</Button>
-                    <Button variant="secondary">
-                      <span className="sr-only">Show history</span>
-                      <RotateCcw />
-                    </Button>
+                    {!isExecuting ? (
+                      <>
+                        <Button onClick={executeCode}>Execute</Button>
+                        <Button variant="secondary">
+                          <span className="sr-only">Show history</span>
+                          <RotateCcw />
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="w-full">
+                        <Progress value={(elapsedTime / 10) * 100} />
+                      </div>
+                    )}
                   </div>
                 </div>
               </TabsContent>
@@ -208,21 +269,31 @@ export default function Editor() {
                         />
                       </div>
                       <div className="flex flex-col space-y-2">
-                        <Label htmlFor="instructions">Input</Label>
+                        <Label htmlFor="input">Input</Label>
                         <Textarea
-                          id="instructions"
+                          id="input"
                           placeholder="stdin"
                         />
                       </div>
                     </div>
-                    <div className="mt-[21px] min-h-[400px] rounded-md border bg-muted lg:min-h-[700px]" />
+                    <div className="mt-[21px] min-h-[400px] rounded-md border bg-muted lg:min-h-[700px]">
+                      <pre>{output}</pre>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Button>Submit</Button>
-                    <Button variant="secondary">
-                      <span className="sr-only">Show history</span>
-                      <RotateCcw />
-                    </Button>
+                    {!isExecuting ? (
+                      <>
+                        <Button onClick={executeCode}>Execute</Button>
+                        <Button variant="secondary">
+                          <span className="sr-only">Show history</span>
+                          <RotateCcw />
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="w-full">
+                        <Progress value={(elapsedTime / 10) * 100} />
+                      </div>
+                    )}
                   </div>
                 </div>
               </TabsContent>
