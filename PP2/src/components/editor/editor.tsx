@@ -24,6 +24,7 @@ export default function Editor() {
   const [isExecuting, setIsExecuting] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [output, setOutput] = useState("")
+  const [stdin, setStdin] = useState("")
 
   function getMonacoLanguageId(languageName: string): string {
     switch (languageName.toLowerCase()) {
@@ -70,13 +71,14 @@ export default function Editor() {
     }, 1000)
 
     try {
+      console.log(stdin)
       const response = await fetch("/api/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: code,
           language: getMonacoLanguageId(selectedLanguage.name),
-          stdin: "",
+          stdin: stdin,
         }),
       })
 
@@ -273,6 +275,8 @@ export default function Editor() {
                         <Textarea
                           id="input"
                           placeholder="stdin"
+                          value={stdin}
+                          onChange={(e) => setStdin(e.target.value)}
                         />
                       </div>
                     </div>

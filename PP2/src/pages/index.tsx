@@ -47,7 +47,7 @@ const Homepage: FC = () => {
             <CardTitle>Write and Execute Code</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Write code in various programming languages with syntax highlighting and real-time output.</p>
+            <p>Write code in over a dozen programming languages with syntax highlighting and real-time output.</p>
           </CardContent>
           <CardFooter>
             <Button variant="link" onClick={() => router.push("/editor")}>
