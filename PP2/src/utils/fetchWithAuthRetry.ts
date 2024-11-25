@@ -9,6 +9,19 @@ export const fetchWithAuthRetry = async (url: string, options: RequestInit = {})
       };
     }
   
+    // Serialize body if it is an object
+    console.log("Serialized body being sent:", options.body);
+    
+      
+    if (options.body) {
+    //   options.body = JSON.stringify(options.body);
+    //   console.log("Serialized body being sent:", options.body);
+      options.headers = {
+        ...options.headers,
+        "Content-Type": "application/json",
+      };
+    }
+  
     const response = await fetch(url, options);
   
     if (response.status === 401) {
