@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ThumbsUp, ThumbsDown, Flag } from "lucide-react";
+import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 
 interface Comment {
   id: string;
@@ -49,19 +50,14 @@ export default function BlogPostPage() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) return;
-
       try {
-        const response = await fetch("/api/users/me", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const response = await fetchWithAuthRetry("/api/users/me");
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
         }
       } catch (err) {
-        console.error("Failed to fetch user info:", err);
+        console.warn("No logged-in user detected. Visitors can view the post.");
       }
     };
 
@@ -124,19 +120,19 @@ export default function BlogPostPage() {
     }
   }, [id]);
 
-  const handleVote = async (type: "up" | "down") => {
+  const handleVote = async (type: "up" | "down", commentId?: string) => {
     if (!user) {
       router.push("/users/signin");
       return;
     }
 
     try {
-      const response = await fetch(`/api/blog-post/${id}/vote`, {
+      const endpoint = commentId
+        ? `/api/comments/${commentId}/vote`
+        : `/api/blog-post/${id}/vote`;
+
+      const response = await fetchWithAuthRetry(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
         body: JSON.stringify({ type }),
       });
 
@@ -144,14 +140,18 @@ export default function BlogPostPage() {
         throw new Error("Failed to vote.");
       }
 
-      const updatedPost = await response.json();
-      setPost(updatedPost);
+      if (commentId) {
+        fetchComments(pagination.currentPage); // Refresh comments
+      } else {
+        const updatedPost = await response.json();
+        setPost(updatedPost);
+      }
     } catch (err) {
       console.error("Error voting:", err);
     }
   };
 
-  const handleReport = async () => {
+  const handleReport = async (commentId?: string) => {
     if (!user) {
       router.push("/users/signin");
       return;
@@ -160,14 +160,11 @@ export default function BlogPostPage() {
     if (!reportReason.trim()) return;
 
     try {
-      const response = await fetch(`/api/report`, {
+      const response = await fetchWithAuthRetry("/api/report", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
         body: JSON.stringify({
-          postId: id,
+          postId: commentId ? undefined : id,
+          commentId,
           reason: reportReason,
         }),
       });
@@ -190,33 +187,31 @@ export default function BlogPostPage() {
       return;
     }
 
+    if (!id) {
+      console.error("Post ID is missing.");
+      alert("Cannot add a comment without a valid post.");
+      return;
+    }
+
     if (!commentContent.trim()) return;
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        router.push("/users/signin");
-        return;
-      }
-
-      const response = await fetch("/api/blog-comment", {
+      const postId = String(id);
+  
+      const response = await fetchWithAuthRetry("/api/blog-comment", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ content: commentContent, postId: id }),
+        body: JSON.stringify({
+          content: commentContent,
+          postId, // Ensure postId is included and valid
+        }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to add comment.");
       }
 
-      // const newComment = await response.json();
-      // setComments((prev) => [newComment, ...prev]);
-      // setCommentContent("");
-      setCommentContent(""); // empty the fields
-      fetchComments(1); // Reload the first page of comments
+      setCommentContent(""); // Clear the input
+      fetchComments(1); // Refresh comments
     } catch (err) {
       console.error("Error adding comment:", err);
     }
@@ -319,6 +314,17 @@ export default function BlogPostPage() {
                     </p>
                   </div>
                   <p className="mt-2">{comment.content}</p>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <Button variant="ghost" onClick={() => handleVote("up", comment.id)}>
+                      <ThumbsUp className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" onClick={() => handleVote("down", comment.id)}>
+                      <ThumbsDown className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" onClick={() => handleReport(comment.id)}>
+                      <Flag className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))
             )}
@@ -346,7 +352,7 @@ export default function BlogPostPage() {
                   <Button variant="secondary" onClick={() => setReporting(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleReport}>Submit</Button>
+                  <Button onClick={() => handleReport()}>Submit</Button>
                 </div>
               </div>
             </div>

@@ -67,7 +67,18 @@ async function getHandler(req, res) {
 async function postHandler(req, res) {
   const { content, postId } = req.body;
   const { user } = req;
+  // console.log(req.user)
 
+  if (!postId || isNaN(Number(postId))) {
+    console.error("Invalid or missing postId:", postId);
+    return res.status(400).json({ error: "Valid postId is required" });
+  }
+  
+  if (!content || typeof content !== "string" || !content.trim()) {
+    console.error("Invalid or missing content:", content);
+    return res.status(400).json({ error: "Content is required and must be a non-empty string" });
+  }
+  
   try {
     const newComment = await prisma.blogComment.create({
       data: {
