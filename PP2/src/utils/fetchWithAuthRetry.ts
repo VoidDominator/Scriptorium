@@ -14,6 +14,8 @@ export const fetchWithAuthRetry = async (url: string, options: RequestInit = {})
     
       
     if (options.body) {
+    // at this step there is no stringfy needed. Make sure the page using this helper function
+    // have the request body already stringfied. 
     //   options.body = JSON.stringify(options.body);
     //   console.log("Serialized body being sent:", options.body);
       options.headers = {

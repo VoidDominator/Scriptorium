@@ -302,15 +302,20 @@ export default function BlogPostPage() {
             ) : (
               comments.map((comment) => (
                 <div key={comment.id} className="mt-4">
-                  <div className="flex items-center">
-                    <Avatar className="h-8 w-8 mr-4 overflow-hidden rounded-full">
-                      <AvatarFallback>
-                        {comment.user.firstName[0]}
-                        {comment.user.lastName[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <p className="text-muted-foreground">
-                      {comment.user.firstName} {comment.user.lastName}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Avatar className="h-8 w-8 mr-4 overflow-hidden rounded-full">
+                        <AvatarFallback>
+                          {comment.user.firstName[0]}
+                          {comment.user.lastName[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-muted-foreground">
+                        {comment.user.firstName} {comment.user.lastName}
+                      </p>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      {new Date(comment.createdAt).toLocaleString()}
                     </p>
                   </div>
                   <p className="mt-2">{comment.content}</p>
@@ -328,6 +333,8 @@ export default function BlogPostPage() {
                 </div>
               ))
             )}
+
+
 
             {/* Load More Button */}
             {pagination.currentPage < pagination.totalPages && (
