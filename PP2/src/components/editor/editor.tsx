@@ -18,6 +18,7 @@ import { fetchWithAuthRetry } from "../../utils/fetchWithAuthRetry"
 import { PresetSelector } from "./preset-selector";
 import { LanguageSelector } from "./language-selector";
 import { DeleteTemplateButton } from "./delete-button";
+import { SaveTemplateButton } from "./save-button";
 
 import { languages, types } from "./data/languages";
 import { presets } from "./data/presets";
@@ -98,6 +99,7 @@ export default function Editor({ template }: EditorProps) {
 
     try {
       console.log(stdin)
+      console.log(code)
       const response = await fetch("/api/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -248,6 +250,7 @@ export default function Editor({ template }: EditorProps) {
                     "Fork"
                   )}
                 </Button>
+                <SaveTemplateButton template={template} code={code} />
                 <DeleteTemplateButton templateId={template.id} />
               </div>
             </div>
