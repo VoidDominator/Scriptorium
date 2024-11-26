@@ -14,9 +14,10 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 import { Loader2 } from "lucide-react";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 
 interface DeleteTemplateButtonProps {
-  templateId: number;
+  templateId?: number;
 }
 
 export function DeleteTemplateButton({ templateId }: DeleteTemplateButtonProps) {
@@ -24,6 +25,8 @@ export function DeleteTemplateButton({ templateId }: DeleteTemplateButtonProps) 
   const router = useRouter();
 
   const handleDelete = async () => {
+    if (!templateId) return;
+
     setIsDeleting(true);
     try {
       const response = await fetchWithAuthRetry(`/api/templates/${templateId}`, {
@@ -46,35 +49,66 @@ export function DeleteTemplateButton({ templateId }: DeleteTemplateButtonProps) 
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive" className="w-full">
-          Delete
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Template</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete this template? This action cannot be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <Button onClick={handleDelete} variant="destructive" disabled={isDeleting}>
-            {isDeleting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
-              </>
-            ) : (
-              "Delete"
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                className="w-full"
+                disabled={!templateId || isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete"
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            {templateId && (
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Template</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this template? This action
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <Button
+                    onClick={handleDelete}
+                    variant="destructive"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete"
+                    )}
+                  </Button>
+                  <AlertDialogCancel asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
             )}
-          </Button>
-          <AlertDialogCancel asChild>
-            <Button variant="outline">Cancel</Button>
-          </AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </AlertDialog>
+        </div>
+      </HoverCardTrigger>
+      <HoverCardContent side="left" align="center" className="text-sm">
+        {templateId ? (
+          <span>This will permanently delete the template.</span>
+        ) : (
+          <span>There is no template to delete.</span>
+        )}
+      </HoverCardContent>
+    </HoverCard>
   );
 }

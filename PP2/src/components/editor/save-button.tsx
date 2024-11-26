@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { Loader2 } from "lucide-react";
 
 interface SaveTemplateButtonProps {
@@ -90,9 +91,20 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
+      <HoverCard>
+      <HoverCardTrigger asChild>
         <Button variant="default" className="w-full">
           {template.id ? "Save..." : "Create..."}
         </Button>
+      </HoverCardTrigger>
+      <HoverCardContent side="left" align="center" className="text-sm">
+        {template.id ? (
+          <span>Save to { template.title } with id { template.id }</span>
+        ) : (
+          <span>Create a new template!</span>
+        )}
+      </HoverCardContent>
+    </HoverCard>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
