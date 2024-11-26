@@ -78,6 +78,7 @@ export default function BlogPostPage() {
         }
 
         const data = await response.json();
+        console.log("Fetched post data:", data); // Debug the response structure
         setPost(data);
 
         // Convert Markdown content to HTML using remark
@@ -120,29 +121,35 @@ export default function BlogPostPage() {
     }
   }, [id]);
 
-  const handleVote = async (type: "up" | "down", commentId?: string) => {
+  const handleVote = async (type: "upvote" | "downvote", commentId?: string) => {
     if (!user) {
       router.push("/users/signin");
       return;
     }
-
+  
     try {
-      const endpoint = commentId
-        ? `/api/comments/${commentId}/vote`
-        : `/api/blog-post/${id}/vote`;
+      const payload = commentId
+      ? { commentId: Number(commentId), type }
+      : { postId: Number(id), type }; // Ensure postId is sent as a number
 
-      const response = await fetchWithAuthRetry(endpoint, {
+      const response = await fetchWithAuthRetry("/api/votes/vote", {
         method: "POST",
-        body: JSON.stringify({ type }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to vote.");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to vote.");
       }
-
+  
       if (commentId) {
-        fetchComments(pagination.currentPage); // Refresh comments
+        // Refresh comments if the vote is for a comment
+        fetchComments(pagination.currentPage);
       } else {
+        // Update the post state if the vote is for the post
         const updatedPost = await response.json();
         setPost(updatedPost);
       }
@@ -239,17 +246,17 @@ export default function BlogPostPage() {
             <div className="flex items-center">
               <Avatar className="h-10 w-10 mr-4 overflow-hidden rounded-full border">
                 <AvatarImage
-                  src={post.user.avatar}
+                  src={post?.user?.avatar || "/default-avatar.png"}
                   alt="Author Avatar"
                   className="h-full w-full object-cover"
                 />
                 <AvatarFallback>
-                  {post.user.firstName[0]}
-                  {post.user.lastName[0]}
+              {post.user?.firstName?.[0] || "?"}
+              {post.user?.lastName?.[0] || "?"}
                 </AvatarFallback>
               </Avatar>
               <p className="text-muted-foreground">
-                {post.user.firstName} {post.user.lastName}
+            {post?.user?.firstName || "Unknown"} {post?.user?.lastName || "User"}
               </p>
             </div>
           </div>
@@ -264,11 +271,11 @@ export default function BlogPostPage() {
 
           {/* Voting and Reporting */}
           <div className="flex items-center mt-4 space-x-4">
-            <Button variant="ghost" className="flex items-center" onClick={() => handleVote("up")}>
+            <Button variant="ghost" className="flex items-center" onClick={() => handleVote("upvote")}>
               <ThumbsUp className="mr-2 h-4 w-4" />
               {post.thumbsUp}
             </Button>
-            <Button variant="ghost" className="flex items-center" onClick={() => handleVote("down")}>
+            <Button variant="ghost" className="flex items-center" onClick={() => handleVote("downvote")}>
               <ThumbsDown className="mr-2 h-4 w-4" />
               {post.thumbsDown}
             </Button>
@@ -320,10 +327,10 @@ export default function BlogPostPage() {
                   </div>
                   <p className="mt-2">{comment.content}</p>
                   <div className="flex items-center space-x-4 mt-2">
-                    <Button variant="ghost" onClick={() => handleVote("up", comment.id)}>
+                    <Button variant="ghost" onClick={() => handleVote("upvote", comment.id)}>
                       <ThumbsUp className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" onClick={() => handleVote("down", comment.id)}>
+                    <Button variant="ghost" onClick={() => handleVote("downvote", comment.id)}>
                       <ThumbsDown className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" onClick={() => handleReport(comment.id)}>
