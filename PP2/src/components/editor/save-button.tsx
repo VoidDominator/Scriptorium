@@ -73,7 +73,7 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
           toast.success("Template saved successfully.");
           router.reload(); // Refresh the page to show updated data
         } else {
-          toast.success(`Template ${title} created successfully with id ${data.templateId}.`);
+          toast.success(`Template "${title}" created successfully with ID ${data.templateId}.`);
           // Redirect to the new template's editor page
           router.push(`/editor/${data.templateId}`);
         }
@@ -90,22 +90,24 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-      <HoverCard>
-      <HoverCardTrigger asChild>
-        <Button variant="default" className="w-full">
-          {template.id ? "Save..." : "Create..."}
-        </Button>
-      </HoverCardTrigger>
-      <HoverCardContent side="left" align="center" className="text-sm">
-        {template.id ? (
-          <span>Save to { template.title } with id { template.id }</span>
-        ) : (
-          <span>Create a new template!</span>
-        )}
-      </HoverCardContent>
-    </HoverCard>
-      </DialogTrigger>
+      <HoverCard openDelay={200}>
+        <HoverCardTrigger asChild>
+          <DialogTrigger asChild>
+            <Button variant="default" className="w-full">
+              {template.id ? "Save..." : "Create..."}
+            </Button>
+          </DialogTrigger>
+        </HoverCardTrigger>
+        <HoverCardContent side="left" align="center" className="text-sm">
+          {template.id ? (
+            <span>
+              Save changes to <span className="italic">{template.title}</span> with ID {template.id})
+            </span>
+          ) : (
+            <span>Create a new template!</span>
+          )}
+        </HoverCardContent>
+      </HoverCard>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{template.id ? "Save Template" : "Create Template"}</DialogTitle>

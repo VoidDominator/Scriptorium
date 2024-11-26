@@ -19,6 +19,7 @@ import { PresetSelector } from "./preset-selector";
 import { LanguageSelector } from "./language-selector";
 import { DeleteTemplateButton } from "./delete-button";
 import { SaveTemplateButton } from "./save-button";
+import { ForkTemplateButton } from "./fork-button";
 
 import { languages, types } from "./data/languages";
 import { presets } from "./data/presets";
@@ -35,9 +36,7 @@ export default function Editor({ template }: EditorProps) {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [output, setOutput] = useState("")
   const [stdin, setStdin] = useState("")
-  const [isForking, setIsForking] = useState(false)
   const router = useRouter()
-  // const { toast } = useToast()
 
   useEffect(() => {
     // Set code from template when it changes
@@ -123,30 +122,6 @@ export default function Editor({ template }: EditorProps) {
       clearInterval(timer)
       setIsExecuting(false)
       setElapsedTime(0)
-    }
-  }
-
-  const handleFork = async () => {
-    setIsForking(true)
-    try {
-      const response = await fetchWithAuthRetry(`/api/templates/fork`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ templateId: template.id }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        toast(`Template forked successfully to id ${data.templateId}. You are now seeing the forked template.`);
-        router.push(`/editor/${data.templateId}`)
-      } else {
-        toast("Failed to fork the template.")
-      }
-    } catch (error) {
-      toast("An error occurred while forking the template.")
-    } finally {
-      setIsForking(false)
     }
   }
 
@@ -240,16 +215,7 @@ export default function Editor({ template }: EditorProps) {
                 </div>
               )}
               <div className="mt-4 space-y-2">
-                <Button onClick={handleFork} disabled={isForking} className="w-full">
-                  {isForking ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Forking...
-                    </>
-                  ) : (
-                    "Fork"
-                  )}
-                </Button>
+                <ForkTemplateButton templateId={template.id} />
                 <SaveTemplateButton template={template} code={code} />
                 <DeleteTemplateButton templateId={template.id} />
               </div>

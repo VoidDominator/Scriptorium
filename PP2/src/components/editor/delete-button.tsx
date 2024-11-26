@@ -49,7 +49,7 @@ export function DeleteTemplateButton({ templateId }: DeleteTemplateButtonProps) 
   };
 
   return (
-    <HoverCard>
+    <HoverCard openDelay={200}>
       <HoverCardTrigger asChild>
         <div>
           <AlertDialog>
