@@ -16,6 +16,7 @@ interface Comment {
   content: string;
   createdAt: string;
   user: { firstName: string; lastName: string };
+  rating: number,
 }
 
 interface BlogPost {
@@ -26,6 +27,7 @@ interface BlogPost {
   user: { firstName: string; lastName: string; avatar: string };
   thumbsUp: number;
   thumbsDown: number;
+  rating: number;
 }
 
 export default function BlogPostPage() {
@@ -44,7 +46,12 @@ export default function BlogPostPage() {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null); // Logged-in user info
   const [reporting, setReporting] = useState(false); // Report modal state
+  const [reportingTarget, setReportingTarget] = useState<{ postId?: string; commentId?: string } | null>(null);
   const [reportReason, setReportReason] = useState(""); // Report reason
+  const [voteState, setVoteState] = useState({
+    postUpvoted: false,
+    postDownvoted: false,
+  });
   const router = useRouter();
   const { id } = router.query;
 
@@ -78,7 +85,6 @@ export default function BlogPostPage() {
         }
 
         const data = await response.json();
-        console.log("Fetched post data:", data); // Debug the response structure
         setPost(data);
 
         // Convert Markdown content to HTML using remark
@@ -129,9 +135,9 @@ export default function BlogPostPage() {
   
     try {
       const payload = commentId
-      ? { commentId: Number(commentId), type }
-      : { postId: Number(id), type }; // Ensure postId is sent as a number
-
+        ? { commentId: Number(commentId), type }
+        : { postId: Number(id), type };
+  
       const response = await fetchWithAuthRetry("/api/votes/vote", {
         method: "POST",
         headers: {
@@ -142,74 +148,63 @@ export default function BlogPostPage() {
   
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to vote.");
+        console.warn(errorData.error || "Failed to vote.");
+        return;
       }
   
+      const { thumbsUp, thumbsDown, rating, message } = await response.json();
+  
       if (commentId) {
-        // Refresh comments if the vote is for a comment
-        fetchComments(pagination.currentPage);
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment.id === commentId
+              ? { ...comment, thumbsUp, thumbsDown, rating }
+              : comment
+          )
+        );
       } else {
-        // Update the post state if the vote is for the post
-        const updatedPost = await response.json();
-        setPost(updatedPost);
+        setPost((prev) =>
+          prev
+            ? { ...prev, thumbsUp, thumbsDown, rating }
+            : null
+        );
+      }
+  
+      // Apply animation effect
+      const elementId = commentId ? `comment-${commentId}` : "post-rating";
+      const element = document.getElementById(elementId);
+  
+      if (element) {
+        if (type === "upvote") {
+          element.classList.add("animate-bounce");
+        } else if (type === "downvote") {
+          element.classList.add("animate-wiggle");
+        }
+  
+        // Remove animation class after effect
+        setTimeout(() => {
+          element.classList.remove("animate-bounce", "animate-wiggle");
+        }, 500);
       }
     } catch (err) {
       console.error("Error voting:", err);
     }
   };
-
-  const handleReport = async (commentId?: string) => {
-    if (!user) {
-      router.push("/users/signin");
-      return;
-    }
-
-    if (!reportReason.trim()) return;
-
-    try {
-      const response = await fetchWithAuthRetry("/api/report", {
-        method: "POST",
-        body: JSON.stringify({
-          postId: commentId ? undefined : id,
-          commentId,
-          reason: reportReason,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to report content.");
-      }
-
-      setReporting(false);
-      setReportReason("");
-      alert("Content has been reported successfully.");
-    } catch (err) {
-      console.error("Error reporting content:", err);
-    }
-  };
-
+  
   const handleAddComment = async () => {
     if (!user) {
       router.push("/users/signin");
       return;
     }
 
-    if (!id) {
-      console.error("Post ID is missing.");
-      alert("Cannot add a comment without a valid post.");
-      return;
-    }
-
     if (!commentContent.trim()) return;
 
     try {
-      const postId = String(id);
-  
       const response = await fetchWithAuthRetry("/api/blog-comment", {
         method: "POST",
         body: JSON.stringify({
           content: commentContent,
-          postId, // Ensure postId is included and valid
+          postId: id,
         }),
       });
 
@@ -223,6 +218,45 @@ export default function BlogPostPage() {
       console.error("Error adding comment:", err);
     }
   };
+
+  const handleReport = async (commentId?: string) => {
+    if (!user) {
+      router.push("/users/signin");
+      return;
+    }
+  
+    if (!reportReason.trim()) {
+      alert("Please provide a reason for reporting.");
+      return;
+    }
+  
+    try {
+      const response = await fetchWithAuthRetry("/api/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          postId: commentId ? undefined : id, // Report the post if no commentId is passed
+          commentId,
+          reason: reportReason,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to report content.");
+      }
+  
+      alert("Report submitted successfully.");
+      setReportReason(""); // Clear the input field
+      setReportingTarget(null); // Close the modal
+    } catch (err) {
+      console.error("Error reporting content:", err);
+      alert("An error occurred while submitting your report.");
+    }
+  };
+  
+
 
   const handleLoadMore = () => {
     if (pagination.currentPage < pagination.totalPages) {
@@ -251,12 +285,12 @@ export default function BlogPostPage() {
                   className="h-full w-full object-cover"
                 />
                 <AvatarFallback>
-              {post.user?.firstName?.[0] || "?"}
-              {post.user?.lastName?.[0] || "?"}
+                  {post.user?.firstName?.[0] || "?"}
+                  {post.user?.lastName?.[0] || "?"}
                 </AvatarFallback>
               </Avatar>
               <p className="text-muted-foreground">
-            {post?.user?.firstName || "Unknown"} {post?.user?.lastName || "User"}
+                {post?.user?.firstName || "Unknown"} {post?.user?.lastName || "User"}
               </p>
             </div>
           </div>
@@ -269,28 +303,40 @@ export default function BlogPostPage() {
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
 
-          {/* Voting and Reporting */}
-          <div className="flex items-center mt-4 space-x-4">
-            <Button variant="ghost" className="flex items-center" onClick={() => handleVote("upvote")}>
-              <ThumbsUp className="mr-2 h-4 w-4" />
-              {post.thumbsUp}
+          {/* Voting and Rating */}
+          <div id="post-rating" className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              className="flex items-center"
+              onClick={() => handleVote("upvote")}
+            >
+              ▲
             </Button>
-            <Button variant="ghost" className="flex items-center" onClick={() => handleVote("downvote")}>
-              <ThumbsDown className="mr-2 h-4 w-4" />
-              {post.thumbsDown}
+            <p className="mx-2">{post?.rating || 0}</p>
+            <Button
+              variant="ghost"
+              className="flex items-center"
+              onClick={() => handleVote("downvote")}
+            >
+              ▼
             </Button>
-            <Button variant="ghost" className="flex items-center ml-auto" onClick={() => setReporting(true)}>
+            <Button
+              variant="ghost"
+              onClick={() =>
+                setReportingTarget({ postId: Array.isArray(id) ? id[0] : id })
+              }
+              className="flex items-center ml-auto"
+            >
               <Flag className="mr-2 h-4 w-4" />
               Report
             </Button>
+
           </div>
 
           <Separator />
-
           {/* Comments Section */}
           <div className="mt-6">
             <h2 className="text-2xl font-semibold mb-4">Comments</h2>
-
             {/* Add Comment */}
             <Textarea
               placeholder="Add a comment..."
@@ -309,39 +355,59 @@ export default function BlogPostPage() {
             ) : (
               comments.map((comment) => (
                 <div key={comment.id} className="mt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Avatar className="h-8 w-8 mr-4 overflow-hidden rounded-full">
-                        <AvatarFallback>
-                          {comment.user.firstName[0]}
-                          {comment.user.lastName[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <p className="text-muted-foreground">
-                        {comment.user.firstName} {comment.user.lastName}
-                      </p>
+                  <div className="flex items-start space-x-4">
+                    {/* Vote Section */}
+                    <div className="flex flex-col items-center space-y-2">
+                      <button
+                        onClick={() => handleVote("upvote", comment.id)}
+                        className="text-gray-500 hover:text-gray-900"
+                      >
+                        ▲
+                      </button>
+                      <p className="text-lg">{comment.rating}</p>
+                      <button
+                        onClick={() => handleVote("downvote", comment.id)}
+                        className="text-gray-500 hover:text-gray-900"
+                      >
+                        ▼
+                      </button>
                     </div>
-                    <p className="text-sm text-gray-500">
-                      {new Date(comment.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <p className="mt-2">{comment.content}</p>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <Button variant="ghost" onClick={() => handleVote("upvote", comment.id)}>
-                      <ThumbsUp className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" onClick={() => handleVote("downvote", comment.id)}>
-                      <ThumbsDown className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" onClick={() => handleReport(comment.id)}>
-                      <Flag className="h-4 w-4" />
-                    </Button>
+
+                    {/* Comment Content */}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Avatar className="h-8 w-8 mr-4 overflow-hidden rounded-full">
+                            <AvatarFallback>
+                              {comment.user.firstName[0]}
+                              {comment.user.lastName[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <p className="text-muted-foreground">
+                            {comment.user.firstName} {comment.user.lastName}
+                          </p>
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          {new Date(comment.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <p className="mt-2">{comment.content}</p>
+                      <div className="flex items-center space-x-4 mt-2">
+                        {/* Report Flag */}
+                      <Button
+                        variant="ghost"
+                        onClick={() => setReportingTarget({ commentId: comment.id })}
+                        className="flex items-center"
+                      >
+                        <Flag className="h-4 w-4" />
+                        Report
+                      </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))
             )}
-
-
 
             {/* Load More Button */}
             {pagination.currentPage < pagination.totalPages && (
@@ -352,10 +418,10 @@ export default function BlogPostPage() {
           </div>
 
           {/* Report Modal */}
-          {reporting && (
+          {reportingTarget && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <div className="bg-white p-6 rounded-md shadow-lg max-w-sm w-full">
-                <h2 className="text-lg font-semibold mb-4">Report Post</h2>
+                <h2 className="text-lg font-semibold mb-4">Report Content</h2>
                 <Textarea
                   placeholder="Enter your reason for reporting"
                   value={reportReason}
@@ -363,14 +429,24 @@ export default function BlogPostPage() {
                   rows={4}
                 />
                 <div className="flex justify-end space-x-4 mt-4">
-                  <Button variant="secondary" onClick={() => setReporting(false)}>
+                  <Button variant="secondary" onClick={() => setReportingTarget(null)}>
                     Cancel
                   </Button>
-                  <Button onClick={() => handleReport()}>Submit</Button>
+                  <Button onClick={() => handleReport(reportingTarget.commentId)}>
+                    Submit
+                  </Button>
                 </div>
               </div>
             </div>
           )}
+
+        
+
+
+
+
+
+          
         </div>
       )}
     </div>

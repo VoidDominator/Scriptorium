@@ -106,3 +106,37 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+.animate-bounce {
+  animation: bounce 0.5s ease-in-out;
+}
+
+.text-red-500 {
+  color: #ef4444; /* Tailwind red */
+}
+
+.text-blue-500 {
+  color: #3b82f6; /* Tailwind blue */
+}

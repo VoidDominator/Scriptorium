@@ -17,125 +17,80 @@ async function voteHandler(req, res) {
   }
 
   try {
-    // Handle voting for a post
+    let targetType, targetId;
     if (postId) {
-      const existingVote = await prisma.vote.findUnique({
-        where: { userId_blogPostId: { userId: user.userId, blogPostId: postId } },
-      });
-
-      if (existingVote) {
-        if (existingVote.type === type) {
-          // Cancel the vote if the user clicks the same vote type again
-          await prisma.vote.delete({ where: { id: existingVote.id } });
-
-          // Adjust the post rating by removing the vote
-          await prisma.blogPost.update({
-            where: { id: postId },
-            data: {
-              rating: {
-                decrement: type === 'upvote' ? 1 : -1,
-              },
-            },
-          });
-
-          return res.status(200).json({ message: `Vote ${type} canceled successfully` });
-        }
-
-        // Switch the vote type and adjust the rating accordingly
-        await prisma.vote.update({
-          where: { id: existingVote.id },
-          data: { type },
-        });
-
-        await prisma.blogPost.update({
-          where: { id: postId },
-          data: {
-            rating: {
-              increment: type === 'upvote' ? 2 : -2, // Adjust for switching vote types
-            },
-          },
-        });
-      } else {
-        // Create a new vote if none exists
-        await prisma.vote.create({
-          data: {
-            userId: user.userId,
-            blogPostId: postId,
-            type,
-          },
-        });
-
-        // Adjust the post rating based on the initial vote
-        await prisma.blogPost.update({
-          where: { id: postId },
-          data: {
-            rating: { increment: type === 'upvote' ? 1 : -1 },
-          },
-        });
-      }
-    } 
-    // Handle voting for a comment
-    else if (commentId) {
-      const existingVote = await prisma.vote.findUnique({
-        where: { userId_commentId: { userId: user.userId, commentId: commentId } },
-      });
-
-      if (existingVote) {
-        if (existingVote.type === type) {
-          // Cancel the vote if the user clicks the same vote type again
-          await prisma.vote.delete({ where: { id: existingVote.id } });
-
-          // Adjust the comment rating by removing the vote
-          await prisma.blogComment.update({
-            where: { id: commentId },
-            data: {
-              rating: {
-                decrement: type === 'upvote' ? 1 : -1,
-              },
-            },
-          });
-
-          return res.status(200).json({ message: `Vote ${type} canceled successfully` });
-        }
-
-        // Switch the vote type and adjust the rating accordingly
-        await prisma.vote.update({
-          where: { id: existingVote.id },
-          data: { type },
-        });
-
-        await prisma.blogComment.update({
-          where: { id: commentId },
-          data: {
-            rating: {
-              increment: type === 'upvote' ? 2 : -2, // Adjust for switching vote types
-            },
-          },
-        });
-      } else {
-        // Create a new vote if none exists
-        await prisma.vote.create({
-          data: {
-            userId: user.userId,
-            commentId: commentId,
-            type,
-          },
-        });
-
-        // Adjust the comment rating based on the initial vote
-        await prisma.blogComment.update({
-          where: { id: commentId },
-          data: {
-            rating: { increment: type === 'upvote' ? 1 : -1 },
-          },
-        });
-      }
+      targetType = 'blogPost';
+      targetId = postId;
+    } else if (commentId) {
+      targetType = 'comment';
+      targetId = commentId;
     }
 
-    return res.status(200).json({ message: 'Vote registered successfully' });
+    // Check for existing vote
+    const existingVote = await prisma.vote.findFirst({
+      where: {
+        userId: user.userId,
+        [`${targetType}Id`]: targetId,
+      },
+    });
+
+    if (existingVote) {
+      if (existingVote.type === type) {
+        // Cancel the vote
+        await prisma.vote.delete({
+          where: { id: existingVote.id },
+        });
+      } else {
+        // Switch the vote type
+        await prisma.vote.update({
+          where: { id: existingVote.id },
+          data: { type },
+        });
+      }
+    } else {
+      // Create a new vote
+      await prisma.vote.create({
+        data: {
+          userId: user.userId,
+          [`${targetType}Id`]: targetId,
+          type,
+        },
+      });
+    }
+
+    // Recalculate the rating
+    const votes = await prisma.vote.findMany({
+      where: {
+        [`${targetType}Id`]: targetId,
+      },
+    });
+
+    const thumbsUp = votes.filter((vote) => vote.type === 'upvote').length;
+    const thumbsDown = votes.filter((vote) => vote.type === 'downvote').length;
+    const rating = thumbsUp - thumbsDown;
+
+    // Update the target entity's rating
+    if (targetType === 'blogPost') {
+      await prisma.blogPost.update({
+        where: { id: postId },
+        data: { rating },
+      });
+    } else if (targetType === 'comment') {
+      await prisma.blogComment.update({
+        where: { id: commentId },
+        data: { rating },
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Vote processed successfully',
+      thumbsUp,
+      thumbsDown,
+      rating,
+    });
   } catch (error) {
     console.error('Error processing vote:', error);
-    res.status(500).json({ error: 'Failed to process vote' });
+    return res.status(500).json({ error: 'Failed to process vote' });
   }
 }
 
