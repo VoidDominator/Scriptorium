@@ -18,13 +18,31 @@ import { languages, types } from "./data/languages";
 import { presets } from "./data/presets";
 import { Language } from "./data/languages";
 
-export default function Editor() {
-  const [code, setCode] = useState("print('Hello, World!')")
+interface EditorProps {
+  template: any
+}
+
+export default function Editor({ template }: EditorProps) {
+  const [code, setCode] = useState(template.fileContent || "")
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(languages[0])
   const [isExecuting, setIsExecuting] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [output, setOutput] = useState("")
   const [stdin, setStdin] = useState("")
+
+  useEffect(() => {
+    // Set code from template when it changes
+    setCode(template.fileContent || "")
+
+    // Find and set the language based on template data
+    const languageName = template.language || "plaintext"
+    const language = languages.find(
+      (lang) => lang.name.toLowerCase() === languageName.toLowerCase()
+    )
+    if (language) {
+      setSelectedLanguage(language)
+    }
+  }, [template])
 
   function getMonacoLanguageId(languageName: string): string {
     switch (languageName.toLowerCase()) {
@@ -102,7 +120,7 @@ export default function Editor() {
     <div className="flex h-full flex-col">
       <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
         <SidebarTrigger />
-        <h2 className="text-lg font-semibold">Editor</h2>
+        <h2 className="text-lg font-semibold">{template.title || "Editor"}</h2>
         <div className="ml-auto flex w-full space-x-2 sm:justify-end">
           <PresetSelector presets={presets} />
           <div className="hidden space-x-2 md:flex">
@@ -191,9 +209,25 @@ export default function Editor() {
                 </HoverCard>
               </div>
               <LanguageSelector types={types} languages={languages} selectedLanguage={selectedLanguage} setSelectedLanguage={setSelectedLanguage} />
-              {/* <TemperatureSelector defaultValue={[0.56]} />
-              <MaxLengthSelector defaultValue={[256]} />
-              <TopPSelector defaultValue={[0.9]} /> */}
+              <div className="mt-4">
+                <h3 className="text-md font-semibold">Explanation</h3>
+                <p className="text-sm">{template.explaination || "No explanation provided."}</p>
+              </div>
+              {template.tags && template.tags.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-md font-semibold">Tags</h3>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {template.tags.map((tag: any) => (
+                      <span
+                        key={tag.id}
+                        className="px-2 py-1 text-sm bg-gray-200 rounded-md"
+                      >
+                        {tag.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="md:order-1">
               <TabsContent value="complete" className="flex-1 flex flex-col mt-0 border-0 p-0">
@@ -201,7 +235,7 @@ export default function Editor() {
                   <MonacoEditor
                     height="75vh"
                     language={getMonacoLanguageId(selectedLanguage.name)}
-                    defaultValue={code}
+                    value={code}
                     onChange={(value) => setCode(value || "")}
                     theme="vs-dark"
                   />
@@ -231,7 +265,7 @@ export default function Editor() {
                     <MonacoEditor
                       height="75vh"
                       language={getMonacoLanguageId(selectedLanguage.name)}
-                      defaultValue={code}
+                      value={code}
                       onChange={(value) => setCode(value || "")}
                       theme="vs-dark"
                     />
@@ -265,7 +299,7 @@ export default function Editor() {
                         <MonacoEditor
                           height="75vh"
                           language={getMonacoLanguageId(selectedLanguage.name)}
-                          defaultValue={code}
+                          value={code}
                           onChange={(value) => setCode(value || "")}
                           theme="vs-dark"
                         />
