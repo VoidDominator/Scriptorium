@@ -44,7 +44,40 @@ export async function execute(code, language, stdin) {
       compile: (file) => `g++ ${file} -o output`,
       cmd: () => `./output`,
     },
-    // Add more languages here
+    ruby: {
+      image: 'ruby:3.2',
+      extension: '.rb',
+      cmd: (file) => `ruby ${file}`,
+    },
+    go: {
+      image: 'golang:1.20',
+      extension: '.go',
+      cmd: (file) => `go run ${file}`,
+    },
+    php: {
+      image: 'php:8.2-cli',
+      extension: '.php',
+      cmd: (file) => `php ${file}`,
+    },
+    swift: {
+      image: 'swift:5.7',
+      extension: '.swift',
+      compile: (file) => `swiftc ${file} -o output`,
+      cmd: () => `./output`,
+    },
+    rust: {
+      image: 'rust:1.70',
+      extension: '.rs',
+      compile: (file) => `rustc ${file} -o output`,
+      cmd: () => `./output`,
+    },
+    perl: {
+      image: 'perl:5.36',
+      extension: '.pl',
+      cmd: (file) => `perl ${file}`,
+    },
+    // For TypeScript, Kotlin, and Scala
+    // custom Docker images may be required
   };
 
   const config = languageConfig[language];
