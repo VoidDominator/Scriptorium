@@ -19,7 +19,7 @@ import { Loader2 } from "lucide-react";
 
 interface SaveTemplateButtonProps {
   template: {
-    id: number;
+    id?: number; // Make id optional
     title: string;
     explaination: string;
     tags: { id: number; name: string }[];
@@ -40,24 +40,43 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      console.log(code)
-      const response = await fetchWithAuthRetry(`/api/templates/${template.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          explaination,
-          tags,
-          content: code
-        }),
-      });
+      const requestData = {
+        title,
+        explaination,
+        tags,
+        content: code,
+      };
+
+      let response;
+      if (template.id) {
+        // Update existing template
+        response = await fetchWithAuthRetry(`/api/templates/${template.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestData),
+        });
+      } else {
+        // Create new template
+        response = await fetchWithAuthRetry(`/api/templates`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestData),
+        });
+      }
+
+      const data = await response.json();
 
       if (response.ok) {
-        toast.success("Template saved successfully.");
         setOpen(false);
-        router.reload(); // Refresh the page to show updated data
+        if (template.id) {
+          toast.success("Template saved successfully.");
+          router.reload(); // Refresh the page to show updated data
+        } else {
+          toast.success(`Template ${title} created successfully with id ${data.templateId}.`);
+          // Redirect to the new template's editor page
+          router.push(`/editor/${data.templateId}`);
+        }
       } else {
-        const data = await response.json();
         toast.error(data.error || "Failed to save the template.");
       }
     } catch (error) {
@@ -72,14 +91,16 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="default" className="w-full">
-          Save...
+          {template.id ? "Save..." : "Create..."}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Save Template</DialogTitle>
+          <DialogTitle>{template.id ? "Save Template" : "Create Template"}</DialogTitle>
           <DialogDescription>
-            Update the template details and save your changes.
+            {template.id
+              ? "Update the template details and save your changes."
+              : "Enter the template details and create a new template."}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -116,10 +137,10 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {template.id ? "Saving..." : "Creating..."}
               </>
             ) : (
-              "Save"
+              template.id ? "Save" : "Create New"
             )}
           </Button>
         </DialogFooter>
