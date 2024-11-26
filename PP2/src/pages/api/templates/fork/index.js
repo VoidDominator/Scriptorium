@@ -33,7 +33,7 @@ async function handler(req, res) {
                 data: {
                     title: template.title,
                     explaination: template.explaination,
-                    content: template.content,
+                    fileContent: template.fileContent,
                     userId: user.userId, // Associate template with the logged-in user
                     isForked: true,
                     forkedFromId: template.id,
@@ -47,7 +47,7 @@ async function handler(req, res) {
             });
             return res.status(201).json({ "message": "Template forked", "templateId": new_template.id });
         } catch (error) {
-            // console.error(error);
+            console.error(error);
             return res.status(500).json({ error: 'Template found, but fork failed' });
         }
     }

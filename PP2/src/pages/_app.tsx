@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 // Example: Static or dynamic user info
 const mockUser = {
@@ -27,6 +28,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </main>
         </div>
       </SidebarProvider>
+      <Toaster />
     </ThemeProvider>
   );
 }

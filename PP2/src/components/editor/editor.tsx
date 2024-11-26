@@ -10,6 +10,10 @@ import { Progress } from "../ui/progress";
 import { RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react"
 import MonacoEditor from "@monaco-editor/react"
+import { useRouter } from "next/router"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { fetchWithAuthRetry } from "../../utils/fetchWithAuthRetry"
 
 import { PresetSelector } from "./preset-selector";
 import { LanguageSelector } from "./language-selector";
@@ -29,6 +33,9 @@ export default function Editor({ template }: EditorProps) {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [output, setOutput] = useState("")
   const [stdin, setStdin] = useState("")
+  const [isForking, setIsForking] = useState(false)
+  const router = useRouter()
+  // const { toast } = useToast()
 
   useEffect(() => {
     // Set code from template when it changes
@@ -116,11 +123,35 @@ export default function Editor({ template }: EditorProps) {
     }
   }
 
+  const handleFork = async () => {
+    setIsForking(true)
+    try {
+      const response = await fetchWithAuthRetry(`/api/templates/fork`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ templateId: template.id }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast(`Template forked successfully to id ${data.templateId}. You are now seeing the forked template.`);
+        router.push(`/editor/${data.templateId}`)
+      } else {
+        toast("Failed to fork the template.")
+      }
+    } catch (error) {
+      toast("An error occurred while forking the template.")
+    } finally {
+      setIsForking(false)
+    }
+  }
+
   return (
     <div className="flex h-full flex-col">
       <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
         <SidebarTrigger />
-        <h2 className="text-lg font-semibold">{template.title || "Editor"}</h2>
+        <h2 className="text-lg font-semibold flex-1">{template.title || "Editor"}</h2>
         <div className="ml-auto flex w-full space-x-2 sm:justify-end">
           <PresetSelector presets={presets} />
           <div className="hidden space-x-2 md:flex">
@@ -228,6 +259,18 @@ export default function Editor({ template }: EditorProps) {
                   </div>
                 </div>
               )}
+              <div className="mt-4">
+                <Button onClick={handleFork} disabled={isForking} className="w-full">
+                  {isForking ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Forking...
+                    </>
+                  ) : (
+                    "Fork"
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="md:order-1">
               <TabsContent value="complete" className="flex-1 flex flex-col mt-0 border-0 p-0">
