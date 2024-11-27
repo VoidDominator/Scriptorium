@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/router";
+import { toast } from "sonner";
+import { useUser } from '@/context/user-context';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -24,6 +26,7 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { setUser } = useUser();
 
   const refreshAccessToken = async () => {
     try {
@@ -61,6 +64,7 @@ export default function ProfilePage() {
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
+        toast.error("Access token missing. Please log in again.");
         throw new Error("Access token missing. Please log in again.");
       }
 
@@ -97,6 +101,7 @@ export default function ProfilePage() {
         const response = await fetchWithAuthRetry("/api/users/profile");
 
         if (!response.ok) {
+          toast.error("Failed to fetch profile.");
           throw new Error("Failed to fetch profile.");
         }
 
@@ -148,7 +153,10 @@ export default function ProfilePage() {
       setProfile(updatedProfile.user);
       setAvatarPreview(updatedProfile.user.avatar);
       setIsEditing(false);
+      setUser(updatedProfile.user);
+      toast.success("Profile updated successfully.");
     } catch (err) {
+      toast.error("Failed to save profile.");
       setError("Failed to save profile.");
     } finally {
       setLoading(false);
