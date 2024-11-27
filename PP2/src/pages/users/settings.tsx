@@ -32,7 +32,8 @@ export default function ProfilePage() {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
       if (!refreshToken) {
-        throw new Error("Refresh token missing. Please log in again.");
+        // throw new Error("Refresh token missing. Please log in again.");
+        router.push("/users/signin");
       }
 
       const response = await fetch("/api/users/refresh", {
@@ -64,8 +65,9 @@ export default function ProfilePage() {
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
-        toast.error("Access token missing. Please log in again.");
-        throw new Error("Access token missing. Please log in again.");
+        router.push("/users/signin");
+        // toast.error("Access token missing. Please log in again.");
+        // throw new Error("Access token missing. Please log in again.");
       }
 
       const response = await fetch(url, {

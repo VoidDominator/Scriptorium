@@ -9,8 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
     "@headlessui/react": "^2.2.0",
     "@monaco-editor/react": "^4.6.0",
+    "@mui/icons-material": "^6.1.9",
+    "@mui/material": "^6.1.9",
     "@prisma/client": "^5.20.0",
     "@prisma/studio": "^0.502.0",
     "@radix-ui/react-alert-dialog": "^1.1.2",
