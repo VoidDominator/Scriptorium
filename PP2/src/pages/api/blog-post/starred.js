@@ -1,4 +1,3 @@
-// Example API Endpoint
 import prisma from "../../../utils/db";
 import { authMiddleware } from "../../../utils/middleware";
 
@@ -19,6 +18,7 @@ async function handler(req, res) {
         userId: user.userId,
         type: "upvote",
         blogPostId: { not: null },
+        blogPost: { hidden: false }, // Ensure hidden posts are excluded
       },
       select: {
         blogPost: {
@@ -36,6 +36,7 @@ async function handler(req, res) {
         userId: user.userId,
         type: "upvote",
         blogPostId: { not: null },
+        blogPost: { hidden: false }, // Exclude hidden posts in the count
       },
     });
 
