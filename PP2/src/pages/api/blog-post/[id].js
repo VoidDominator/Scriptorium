@@ -32,6 +32,13 @@ async function handler(req, res) {
               },
             },
           },
+          templates: {
+            select: {
+              id: true,
+              title: true,
+              explaination: true,
+            },
+          },
         },
       });
 

@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Flag } from "lucide-react";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+
 
 interface Comment {
   id: string;
@@ -29,6 +31,7 @@ interface BlogPost {
   thumbsDown: number;
   rating: number;
   tags: { name: string }[];
+  templates?: { id: string; title: string; explaination:string; }[];
 }
 
 export default function BlogPostPage() {
@@ -328,6 +331,32 @@ export default function BlogPostPage() {
                   >
                     {tag.name}
                   </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Display templates linked to the blog post */}
+          {post.templates && post.templates.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">Templates</h2>
+              <div className="space-y-3">
+                {post.templates.map((template) => (
+                  <HoverCard key={template.id}>
+                    <HoverCardTrigger asChild>
+                      <a
+                        href={`/editor/${template.id}`}
+                        className="text-blue-500 hover:underline block"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {template.title}
+                      </a>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-64 bg-white shadow-lg p-3 rounded-md border border-gray-300">
+                      <p className="text-sm text-gray-800">{template.explaination || "No explanation available"}</p>
+                    </HoverCardContent>
+                  </HoverCard>
                 ))}
               </div>
             </div>
