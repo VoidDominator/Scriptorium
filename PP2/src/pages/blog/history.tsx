@@ -12,7 +12,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry"; // Import helper function
+import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry"; 
+import Link from "next/link";
 
 interface BlogPost {
   id: string;
@@ -118,6 +119,9 @@ export default function BlogHistoryPage() {
     }
   };
   
+  const goToBlog = (postId: string) => {
+    router.push(`/blog/${postId}`);
+  };
   
 
   return (
@@ -127,7 +131,10 @@ export default function BlogHistoryPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post) => (
-          <Card key={post.id} className="h-64 flex flex-col justify-between border shadow-lg">
+          <Card key={post.id} 
+                className="h-64 flex flex-col justify-between border shadow-lg"
+                onClick={() => goToBlog(post.id)}
+                >
             <CardHeader>
               <CardTitle>{post.title}</CardTitle>
             </CardHeader>
@@ -144,17 +151,21 @@ export default function BlogHistoryPage() {
                 ))}
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button onClick={() => handleEdit(post.id)} variant="secondary">
-                Edit
-              </Button>
-              <Button
-                onClick={() => handleDelete(post.id)}
+            <CardFooter className="flex justify-between items-center">
+                <Link href={`/blog/edit/${post.id}`} passHref>
+                <Button variant="outline">Edit</Button>
+                </Link>
+                <Button
+                onClick={(e) => {
+                    e.stopPropagation(); // Prevents triggering the Card's onClick handler
+                    handleDelete(post.id);
+                }}
                 variant="destructive"
                 disabled={post.isDeleting} // Disable button while deleting
                 >
                 {post.isDeleting ? "Deleting..." : "Delete"}
                 </Button>
+
             </CardFooter>
           </Card>
         ))}

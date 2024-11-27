@@ -11,8 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from "react-markdown";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 
-export default function CreateBlogPostPage() {
+export default function EditBlogPostPage() {
   const router = useRouter();
+  const { id } = router.query; // Get the blog post ID from the URL
   const [user, setUser] = useState<any>(null); // Store logged-in user info
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -27,22 +28,29 @@ export default function CreateBlogPostPage() {
   const DESCRIPTION_MAX_LENGTH = 50;
   const TAG_MAX_LENGTH = 10;
 
-  // Check if the user is logged in
+  // Fetch existing blog post data
   useEffect(() => {
-    const redirectIfNotLoggedIn = async () => {
-      const response = await fetchWithAuthRetry("/api/users/me");
-      if (!response.ok) {
-        // If the user is not logged in, redirect immediately
-        router.replace("/users/signin");
-      } else {
-        // If logged in, set the user data
-        const userData = await response.json();
-        setUser(userData);
+    if (!id) return;
+
+    const fetchPost = async () => {
+      try {
+        const response = await fetchWithAuthRetry(`/api/blog-post/${id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch blog post data.");
+        }
+        const data = await response.json();
+        setTitle(data.title);
+        setDescription(data.description);
+        setContent(data.content);
+        setTags(data.tags.map((tag: { name: string }) => tag.name));
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load blog post data. Please try again.");
       }
     };
-  
-    redirectIfNotLoggedIn();
-  }, [router]);
+
+    fetchPost();
+  }, [id]);
 
   const handleAddTag = () => {
     if (newTag.length > TAG_MAX_LENGTH) {
@@ -77,8 +85,8 @@ export default function CreateBlogPostPage() {
     }
 
     try {
-      const response = await fetchWithAuthRetry("/api/blog-post", {
-        method: "POST",
+      const response = await fetchWithAuthRetry(`/api/blog-post/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -86,12 +94,12 @@ export default function CreateBlogPostPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create the blog post.");
+        throw new Error("Failed to update the blog post.");
       }
 
-      router.push("/blog/blog-post");
+      router.push(`/blog/history`);
     } catch (err) {
-      setError("Failed to create the blog post. Please try again.");
+      setError("Failed to update the blog post. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -101,7 +109,7 @@ export default function CreateBlogPostPage() {
     <div className="container mx-auto p-4">
       <Card className="max-w-3xl mx-auto shadow-lg">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Create a Blog Post</CardTitle>
+          <CardTitle className="text-center text-2xl">Edit Blog Post</CardTitle>
         </CardHeader>
         <Separator />
         <CardContent className="space-y-4">
@@ -197,7 +205,7 @@ export default function CreateBlogPostPage() {
             disabled={loading || !title || !description || !content}
             className="w-full md:w-auto"
           >
-            {loading ? "Publishing..." : "Publish Blog Post"}
+            {loading ? "Updating..." : "Update Blog Post"}
           </Button>
         </CardFooter>
       </Card>

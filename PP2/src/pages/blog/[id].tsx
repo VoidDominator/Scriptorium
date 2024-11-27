@@ -28,6 +28,7 @@ interface BlogPost {
   thumbsUp: number;
   thumbsDown: number;
   rating: number;
+  tags: { name: string }[];
 }
 
 export default function BlogPostPage() {
@@ -315,6 +316,23 @@ export default function BlogPostPage() {
             className="markdown my-6 text-lg"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
+
+          {/* Blog Post Tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="my-4">
+              <div className="flex flex-wrap mt-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag.name}
+                    className="bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full mr-2 mb-2"
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
 
           {/* Voting and Rating */}
           <div id="post-rating" className="flex items-center space-x-2">
