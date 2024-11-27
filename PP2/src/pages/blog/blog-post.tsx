@@ -9,7 +9,6 @@ import { useRouter } from "next/router";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -28,22 +27,23 @@ export default function BlogPostsPage() {
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
+    pageSize: 9,
   });
   const [searchParams, setSearchParams] = useState({
     title: "",
+    content: "",
     tag: "",
-    author: "",
+    template: "",
     sortBy: "rating",
+    order: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
-  const [hydrated, setHydrated] = useState(false); // Track hydration
+  const [activeField, setActiveField] = useState<"tag" | "content" | "title" | "template">("title"); // Default to "title"
+
   const router = useRouter();
 
-  // Ensures content is rendered only after hydration
   useEffect(() => {
-    setHydrated(true);
-
     const fetchUser = async () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) return;
@@ -66,43 +66,75 @@ export default function BlogPostsPage() {
   }, []);
 
   const fetchPosts = async (page = 1) => {
+    const { title, content, tag, template, sortBy, order } = searchParams;
+    const limit = pagination.pageSize;
+
     try {
       setError(null);
-      const query = new URLSearchParams({
-        ...searchParams,
+
+      // Construct query parameters
+      const queryParams = new URLSearchParams({
+        title: title || "",
+        content: content || "",
+        tag: tag || "",
+        template: template || "",
+        sortBy: sortBy || "rating",
+        order: order || "desc",
         page: page.toString(),
-        limit: "12",
+        limit: limit.toString(),
       });
 
-      const response = await fetch(`/api/blog-post/search?${query.toString()}`);
-      if (!response.ok) throw new Error("Failed to fetch posts");
+      const response = await fetch(`/api/blog-post/search?${queryParams.toString()}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch posts.");
+      }
 
       const data = await response.json();
+
       setPosts(data.posts);
-      setPagination(data.pagination);
+      setPagination((prev) => ({
+        ...prev,
+        totalItems: data.pagination.totalItems,
+        totalPages: data.pagination.totalPages,
+        currentPage: data.pagination.currentPage,
+      }));
     } catch (err) {
+      console.error("Error fetching posts:", err);
       setError("Failed to load posts. Please try again.");
     }
   };
 
   useEffect(() => {
-    if (hydrated) {
-      fetchPosts();
-    }
-  }, [hydrated, searchParams]);
+    fetchPosts();
+  }, [searchParams, pagination.pageSize]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchParams({ ...searchParams, title: e.target.value });
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchParams((prev) => ({
+      ...prev,
+      [activeField]: value, // Dynamically update the active field
+    }));
+  };
+  
+  
+  const handleSortChange = (sortBy:string, direction: string) => {
+    setSearchParams((prev) => ({
+      ...prev,
+      sortBy: "rating",
+      order: direction,
+    }));
+    // Do not call fetchPosts directly here; let useEffect handle it
   };
 
-  const handleSortChange = (sortBy: string) => {
-    setSearchParams({
-      ...searchParams,
-      sortBy,
-      title: sortBy === "rating" ? "" : searchParams.title,
-      tag: sortBy === "tags" ? searchParams.tag : "",
-      author: sortBy === "author" ? searchParams.author : "",
-    });
+  const handlePageSizeChange = (size: number) => {
+    setPagination((prev) => ({ ...prev, pageSize: size }));
+    fetchPosts(1); // Reset to the first page whenever page size changes
   };
 
   const goToPost = (postId: string) => {
@@ -123,21 +155,87 @@ export default function BlogPostsPage() {
       <div className="flex items-center mb-4">
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Button className="mr-2">Sort By</Button>
+            <Button className="mr-2">Filter</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleSortChange("rating")}>Rating</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("tags")}>Tags</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("author")}>Author</DropdownMenuItem>
-          </DropdownMenuContent>
+
+            {/* Sorting options */}
+            <DropdownMenuItem onClick={() => handleSortChange("rating", "desc")}>
+              Rating (High to Low)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSortChange("rating", "asc")}>
+              Rating (Low to High)
+            </DropdownMenuItem>
+
+            {/* Field selection options */}
+              <DropdownMenuItem
+                onClick={() => {
+                  setActiveField("tag");
+                  setSearchParams((prev) => ({
+                    ...prev,
+                    tag: "",
+                  }));
+                }}
+              >
+                Tags
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setActiveField("title");
+                  setSearchParams((prev) => ({
+                    ...prev,
+                    title: "",
+                  }));
+                }}
+              >
+                Title
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setActiveField("content");
+                  setSearchParams((prev) => ({
+                    ...prev,
+                    content: "",
+                  }));
+                }}
+              >
+                Content
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setActiveField("template");
+                  setSearchParams((prev) => ({
+                    ...prev,
+                    template: "",
+                  }));
+                }}
+              >
+                Template
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+
         </DropdownMenu>
+
         <Input
-          placeholder="Search blog posts..."
-          value={searchParams.title}
-          onChange={handleSearch}
+          placeholder={`Search by ${activeField}...`}
+          value={searchParams[activeField] || ""}
+          onChange={handleSearchChange}
           className="flex-1 mr-2"
         />
+
         <Button onClick={() => fetchPosts(1)}>Search</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button className="ml-2">Page Size</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {[3, 6, 9, 12, 15].map((size) => (
+              <DropdownMenuItem key={size} onClick={() => handlePageSizeChange(size)}>
+                {size}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {error && <p className="text-red-500">{error}</p>}
@@ -211,7 +309,7 @@ export default function BlogPostsPage() {
         </PaginationContent>
       </Pagination>
 
-      {hydrated && user && (
+      {user && (
         <div className="flex justify-center items-center mt-12">
           <Button onClick={createPost}>Publish Blog Post</Button>
         </div>

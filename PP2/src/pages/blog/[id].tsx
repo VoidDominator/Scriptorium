@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { ThumbsUp, ThumbsDown, Flag } from "lucide-react";
+import { ArrowLeft, Flag } from "lucide-react";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 
 interface Comment {
@@ -53,7 +53,7 @@ export default function BlogPostPage() {
     postDownvoted: false,
   });
   const router = useRouter();
-  const { id } = router.query;
+  const { id, page, title, tag, author, sortBy } = router.query;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -256,12 +256,21 @@ export default function BlogPostPage() {
     }
   };
   
-
-
   const handleLoadMore = () => {
     if (pagination.currentPage < pagination.totalPages) {
       fetchComments(pagination.currentPage + 1);
     }
+  };
+
+  const handleBackToSearch = () => {
+    const query = new URLSearchParams({
+      page: page as string,
+      title: title as string,
+      tag: tag as string,
+      author: author as string,
+      sortBy: sortBy as string,
+    });
+    router.push(`/blog/blog-post?${query.toString()}`);
   };
 
   if (loading) return <p className="text-center">Loading...</p>;
@@ -271,6 +280,13 @@ export default function BlogPostPage() {
     <div className="container mx-auto p-4">
       {post && (
         <div className="max-w-4xl mx-auto">
+
+          {/* Back to Search Results Button */}
+          <Button onClick={handleBackToSearch} className="flex justify-start">
+              <ArrowLeft className="mr-2" />
+              Back to Search Results
+            </Button>
+
           {/* Title and Author */}
           <div className="mb-6">
             <h1 className="text-4xl font-bold mb-2">{post.title}</h1>
@@ -440,7 +456,6 @@ export default function BlogPostPage() {
             </div>
           )}
 
-        
 
 
 
