@@ -70,7 +70,6 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               items: [
                 { title: "Getting Started", url: "/editor" },
                 { title: "Tutorial", url: "#" },
-                // { title: "Settings", url: "#" },
               ],
             },
             {
@@ -81,8 +80,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                 { title: "View", url: "/blog/blog-post" },
                 { title: "New Ideas?", url: "/blog/create" },
                 { title: "History", url: "/blog/history" },
-                { title: "Starred", url: "#" },
-                // { title: "Settings", url: "#" },
+                { title: "Starred", url: "/blog/starred" },
               ],
             },
             {
