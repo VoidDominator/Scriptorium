@@ -12,12 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/router";
+import { useUser } from "@/context/user-context";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { setUser } = useUser();
 
   const handleSignIn = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -46,6 +48,9 @@ export default function SignInPage() {
       // Store tokens in localStorage
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+
+      // Set the user in context
+      setUser(user);
 
       // Redirect the user to the home page
       router.push("/");
