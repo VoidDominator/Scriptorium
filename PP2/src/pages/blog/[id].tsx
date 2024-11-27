@@ -480,7 +480,7 @@ export default function BlogPostPage() {
           {/* Report Modal */}
           {reportingTarget && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-6 rounded-md shadow-lg max-w-sm w-full">
+              <div className="bg-white dark:bg-black p-6 rounded-md shadow-lg max-w-sm w-full border">
                 <h2 className="text-lg font-semibold mb-4">Report Content</h2>
                 <Textarea
                   placeholder="Enter your reason for reporting"
