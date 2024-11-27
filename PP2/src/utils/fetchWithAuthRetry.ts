@@ -10,7 +10,7 @@ export const fetchWithAuthRetry = async (url: string, options: RequestInit = {})
     }
   
     // Serialize body if it is an object
-    console.log("Serialized body being sent:", options.body);
+    // console.log("Serialized body being sent:", options.body);
     
       
     if (options.body) {

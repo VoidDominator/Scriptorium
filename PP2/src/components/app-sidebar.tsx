@@ -80,7 +80,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               items: [
                 { title: "View", url: "/blog/blog-post" },
                 { title: "New Ideas?", url: "/blog/create" },
-                { title: "History", url: "#" },
+                { title: "History", url: "/blog/history" },
                 { title: "Starred", url: "#" },
                 // { title: "Settings", url: "#" },
               ],
