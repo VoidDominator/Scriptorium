@@ -63,7 +63,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <NavMain
           items={[
             {
-              title: "Code Compiler",
+              title: "Code",
               url: "#",
               icon: SquareTerminal,
               isActive: true,
@@ -90,7 +90,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               url: "#",
               icon: BookOpen,
               items: [
-                { title: "History", url: "#" },
+                { title: "All Templates", url: "/templates" },
                 { title: "Starred", url: "#" },
                 // { title: "Settings", url: "#" },
               ],

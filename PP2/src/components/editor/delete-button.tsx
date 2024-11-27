@@ -15,14 +15,17 @@ import { toast } from "sonner";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 import { Loader2 } from "lucide-react";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
+import { useUser } from '@/context/user-context';
 
 interface DeleteTemplateButtonProps {
   templateId?: number;
+  authorId?: number;
 }
 
-export function DeleteTemplateButton({ templateId }: DeleteTemplateButtonProps) {
+export function DeleteTemplateButton({ templateId, authorId }: DeleteTemplateButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
+  const { user } = useUser();
 
   const handleDelete = async () => {
     if (!templateId) return;
@@ -57,7 +60,7 @@ export function DeleteTemplateButton({ templateId }: DeleteTemplateButtonProps) 
               <Button
                 variant="destructive"
                 className="w-full"
-                disabled={!templateId || isDeleting}
+                disabled={!templateId || isDeleting || user?.id !== authorId}
               >
                 {isDeleting ? (
                   <>
@@ -103,11 +106,14 @@ export function DeleteTemplateButton({ templateId }: DeleteTemplateButtonProps) 
         </div>
       </HoverCardTrigger>
       <HoverCardContent side="left" align="center" className="text-sm">
-        {templateId ? (
-          <span>This will permanently delete the template.</span>
-        ) : (
-          <span>There is no template to delete.</span>
-        )}
+        {user?.id !== authorId ? (
+          <span>This is not yours. Create a fork if you want to modify.</span>
+        ) :
+          templateId ? (
+            <span>This will permanently delete the template.</span>
+          ) : (
+            <span>There is no template to delete.</span>
+          )}
       </HoverCardContent>
     </HoverCard>
   );

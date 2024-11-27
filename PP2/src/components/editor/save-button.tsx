@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { Loader2 } from "lucide-react";
+import { useUser } from '@/context/user-context';
 
 interface SaveTemplateButtonProps {
   template: {
@@ -24,6 +25,7 @@ interface SaveTemplateButtonProps {
     title: string;
     explaination: string;
     tags: { id: number; name: string }[];
+    userId: number;
   };
   code: string;
 }
@@ -37,6 +39,7 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
   );
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
+  const { user } = useUser();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -93,15 +96,18 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
       <HoverCard openDelay={200}>
         <HoverCardTrigger asChild>
           <DialogTrigger asChild>
-            <Button variant="default" className="w-full">
+            <Button variant="default" className="w-full" disabled={user?.id !== template.userId}>
               {template.id ? "Save..." : "Create..."}
             </Button>
           </DialogTrigger>
         </HoverCardTrigger>
         <HoverCardContent side="left" align="center" className="text-sm">
-          {template.id ? (
+          {user?.id !== template.userId ? (
+            <span>This is not yours. Create a fork if you want to modify.</span>
+          ) : template.id ? (
             <span>
-              Save changes to <span className="italic">{template.title}</span> with ID {template.id})
+              Save changes to <span className="italic">{template.title}</span>{" "}
+              with ID {template.id}.
             </span>
           ) : (
             <span>Create a new template!</span>

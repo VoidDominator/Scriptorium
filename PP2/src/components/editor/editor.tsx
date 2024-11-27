@@ -217,7 +217,7 @@ export default function Editor({ template }: EditorProps) {
               <div className="mt-4 space-y-2">
                 <ForkTemplateButton templateId={template.id} />
                 <SaveTemplateButton template={template} code={code} />
-                <DeleteTemplateButton templateId={template.id} />
+                <DeleteTemplateButton templateId={template.id} authorId={template.userId} />
               </div>
             </div>
             <div className="md:order-1">
