@@ -11,6 +11,8 @@ import { RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react"
 import MonacoEditor from "@monaco-editor/react"
 import { useRouter } from "next/router"
+import { useTheme } from "next-themes";
+import Link from "next/link";
 
 import { PresetSelector } from "./preset-selector";
 import { LanguageSelector } from "./language-selector";
@@ -21,7 +23,7 @@ import { ForkTemplateButton } from "./fork-button";
 import { languages, types } from "./data/languages";
 import { presets } from "./data/presets";
 import { Language } from "./data/languages";
-import { useTheme } from "next-themes";
+import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 
 interface EditorProps {
   template: any
@@ -37,6 +39,9 @@ export default function Editor({ template }: EditorProps) {
   const router = useRouter()
   const { resolvedTheme } = useTheme();
 
+  const [authorName, setAuthorName] = useState<string>("Loading...");
+  const [forkedTemplate, setForkedTemplate] = useState<any>(null);
+
   useEffect(() => {
     // Set code from template when it changes
     setCode(template.fileContent || "")
@@ -50,6 +55,55 @@ export default function Editor({ template }: EditorProps) {
       setSelectedLanguage(language)
     }
   }, [template])
+
+  useEffect(() => {
+    // Fetch author name when template.userId changes
+    const fetchAuthor = async (userId: number) => {
+      try {
+        const response = await fetch(`/api/users/${userId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch author");
+        }
+        const data = await response.json();
+        if (data && data.firstName && data.lastName) {
+          setAuthorName(`${data.firstName} ${data.lastName}`);
+        } else {
+          setAuthorName("Unknown Author");
+        }
+      } catch (error) {
+        console.error("Failed to fetch author:", error);
+        setAuthorName("Unknown Author");
+      }
+    };
+
+    if (template.userId) {
+      fetchAuthor(template.userId);
+    } else {
+      setAuthorName("No author provided.");
+    }
+  }, [template.userId]);
+
+  useEffect(() => {
+    if (template.isForked && template.forkedFromId) {
+      const fetchForkedTemplate = async () => {
+        try {
+          const response = await fetch(`/api/templates/${template.forkedFromId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setForkedTemplate(data);
+          } else {
+            console.error('Failed to fetch forked template');
+          }
+        } catch (error) {
+          console.error('Error fetching forked template:', error);
+        }
+      };
+
+      fetchForkedTemplate();
+    } else {
+      setForkedTemplate(null);
+    }
+  }, [template.isForked, template.forkedFromId]);
 
   function getMonacoLanguageId(languageName: string): string {
     switch (languageName.toLowerCase()) {
@@ -124,18 +178,23 @@ export default function Editor({ template }: EditorProps) {
     }
   }
 
+  function formatLocalTime(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  }
+
   return (
     <div className="flex h-full flex-col">
       <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
         <SidebarTrigger />
         <h2 className="text-lg font-semibold flex-1">{template.title || "Editor"}</h2>
-        <div className="ml-auto flex w-full space-x-2 sm:justify-end">
-          <PresetSelector presets={presets} />
-          <div className="hidden space-x-2 md:flex">
+        {/* <div className="ml-auto flex w-full space-x-2 sm:justify-end"> */}
+          {/* <PresetSelector presets={presets} /> */}
+          {/* <div className="hidden space-x-2 md:flex"> */}
             {/* <CodeViewer /> */}
             {/* <PresetShare /> */}
-          </div>
-        </div>
+          {/* </div> */}
+        {/* </div> */}
       </div>
       <Separator />
       <Tabs defaultValue="complete" className="flex-1 flex flex-col">
@@ -195,8 +254,38 @@ export default function Editor({ template }: EditorProps) {
               </div>
               <LanguageSelector types={types} languages={languages} selectedLanguage={selectedLanguage} setSelectedLanguage={setSelectedLanguage} />
               <div className="mt-4">
+                <h3 className="text-md font-semibold">Author</h3>
+                <p className="text-sm">{authorName}</p>
+              </div>
+              <div className="mt-4">
                 <h3 className="text-md font-semibold">Explanation</h3>
                 <p className="text-sm">{template.explaination || "No explanation provided."}</p>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-md font-semibold">Created</h3>
+                <p className="text-sm">
+                  {template.createTime
+                    ? formatLocalTime(template.createTime)
+                    : "No information provided."}
+                </p>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-md font-semibold">Last Modified</h3>
+                <p className="text-sm">
+                  {template.lastEditTime
+                    ? formatLocalTime(template.lastEditTime)
+                    : "No information provided."}
+                </p>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-md font-semibold">{forkedTemplate ? ("Forked from"):("")}</h3>
+                {forkedTemplate ? (
+                  <Link href={`/editor/${forkedTemplate.id}`}>
+                    <div className="text-sm text-blue-500 hover:underline">{forkedTemplate.title}</div>
+                  </Link>
+                ) : (
+                  <p className="text-sm"></p>
+                )}
               </div>
               {template.tags && template.tags.length > 0 && (
                 <div className="mt-4">
