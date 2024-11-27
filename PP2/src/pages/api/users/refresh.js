@@ -15,6 +15,7 @@ export default async function handler(req, res) {
       const newAccessToken = generateAccessToken({
         userId: decoded.userId,
         email: decoded.email,
+        role: decoded.role,
       });
 
       return res.status(200).json({ accessToken: newAccessToken });

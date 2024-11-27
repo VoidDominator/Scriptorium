@@ -35,6 +35,7 @@ export default async function handler(req, res) {
           lastName: user.lastName,
           email: user.email,
           avatar: user.avatar,
+          role: user.role,
         },
       });
     } catch (error) {

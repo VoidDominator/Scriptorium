@@ -52,8 +52,12 @@ export default function SignInPage() {
       // Set the user in context
       setUser(user);
 
-      // Redirect the user to the home page
-      router.push("/");
+      // Redirect the user to the home page and redirect admin into work page
+      if (user.role === "ADMIN") {
+        router.push("/admin/reports");
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       console.error("SignIn Error:", err);
       setError("An unexpected error occurred. Please try again.");

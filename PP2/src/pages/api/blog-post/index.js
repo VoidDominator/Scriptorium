@@ -1,61 +1,16 @@
 import prisma from "../../../utils/db";
 import { authMiddleware } from "../../../utils/middleware";
 
-// Handler for GET requests (public access) with pagination and filtering
+// Handler for GET requests (public access) with pagination
 async function getHandler(req, res) {
-  const {
-    page = 1,
-    limit = 10,
-    title,
-    tag,
-    author,
-    sortBy = "id", // Default sorting by ID
-    order = "desc",
-  } = req.query;
+  const { page = 1, limit = 10, sortBy = "id", order = "desc" } = req.query;
 
   const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
 
-  // Normalize undefined or "undefined" query values
-  const normalizedTitle = title === "undefined" ? "" : title;
-  const normalizedTag = tag === "undefined" ? "" : tag;
-  const normalizedAuthor = author === "undefined" ? "" : author;
-
   try {
-    // Build filters dynamically based on query parameters
-    const filters = {
-      AND: [
-        normalizedTitle
-          ? { title: { contains: normalizedTitle, mode: "insensitive" } }
-          : undefined,
-        normalizedTag
-          ? {
-              tags: {
-                some: { name: { contains: normalizedTag, mode: "insensitive" } },
-              },
-            }
-          : undefined,
-        normalizedAuthor
-          ? {
-              user: {
-                OR: [
-                  { firstName: { contains: normalizedAuthor, mode: "insensitive" } },
-                  { lastName: { contains: normalizedAuthor, mode: "insensitive" } },
-                ],
-              },
-            }
-          : undefined,
-      ].filter(Boolean), // Remove undefined filters
-    };
-
-    // If no filters are provided, fetch all posts
-    const isDefaultFilter =
-      !normalizedTitle && !normalizedTag && !normalizedAuthor;
-
-    // Fetch blog posts with filtering and pagination
+    // Fetch blog posts with pagination, excluding hidden posts
     const posts = await prisma.blogPost.findMany({
-      where: isDefaultFilter
-        ? { hidden: false } // Default case: fetch all non-hidden posts
-        : { ...filters, hidden: false }, // Apply filters and include non-hidden posts only
+      where: { hidden: false }, // Exclude hidden posts
       include: {
         user: {
           select: {
@@ -65,7 +20,7 @@ async function getHandler(req, res) {
         },
         tags: { select: { name: true } },
         comments: {
-          where: { hidden: false },
+          where: { hidden: false }, // Exclude hidden comments
           include: {
             user: {
               select: {
@@ -85,7 +40,7 @@ async function getHandler(req, res) {
 
     // Get total count for pagination metadata
     const totalPosts = await prisma.blogPost.count({
-      where: isDefaultFilter ? { hidden: false } : { ...filters, hidden: false },
+      where: { hidden: false }, // Exclude hidden posts
     });
 
     const totalPages = Math.ceil(totalPosts / parseInt(limit, 10));

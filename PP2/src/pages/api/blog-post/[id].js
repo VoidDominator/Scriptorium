@@ -7,9 +7,6 @@ import prisma from "../../../utils/db";
 async function handler(req, res) {
   const { id } = req.query;
 
-  // console.log("Received ID:", id);
-
-  // Validate `id`
   if (!id || isNaN(parseInt(id, 10))) {
     return res.status(400).json({ error: "Invalid or missing Post ID." });
   }
@@ -19,7 +16,7 @@ async function handler(req, res) {
   if (req.method === "GET") {
     try {
       const post = await prisma.blogPost.findUnique({
-        where: { id: parsedId },
+        where: { id: parsedId, hidden: false },
         include: {
           user: {
             select: { firstName: true, lastName: true, avatar: true }, // Select only necessary user data
