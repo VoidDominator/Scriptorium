@@ -91,7 +91,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               icon: BookOpen,
               items: [
                 { title: "All Templates", url: "/templates" },
-                { title: "Starred", url: "#" },
+                { title: "My Templates", url: "/templates/my" },
                 // { title: "Settings", url: "#" },
               ],
             },
