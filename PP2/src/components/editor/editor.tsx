@@ -11,9 +11,6 @@ import { RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react"
 import MonacoEditor from "@monaco-editor/react"
 import { useRouter } from "next/router"
-import { Loader2 } from "lucide-react"
-import { toast } from "sonner"
-import { fetchWithAuthRetry } from "../../utils/fetchWithAuthRetry"
 
 import { PresetSelector } from "./preset-selector";
 import { LanguageSelector } from "./language-selector";
@@ -24,6 +21,7 @@ import { ForkTemplateButton } from "./fork-button";
 import { languages, types } from "./data/languages";
 import { presets } from "./data/presets";
 import { Language } from "./data/languages";
+import { useTheme } from "next-themes";
 
 interface EditorProps {
   template: any
@@ -37,6 +35,7 @@ export default function Editor({ template }: EditorProps) {
   const [output, setOutput] = useState("")
   const [stdin, setStdin] = useState("")
   const router = useRouter()
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     // Set code from template when it changes
@@ -97,8 +96,8 @@ export default function Editor({ template }: EditorProps) {
     }, 1000)
 
     try {
-      console.log(stdin)
-      console.log(code)
+      // console.log(stdin)
+      // console.log(code)
       const response = await fetch("/api/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -206,7 +205,7 @@ export default function Editor({ template }: EditorProps) {
                     {template.tags.map((tag: any) => (
                       <span
                         key={tag.id}
-                        className="px-2 py-1 text-sm bg-gray-200 rounded-md"
+                        className="px-2 py-1 text-sm border-gray-200 rounded-md"
                       >
                         {tag.name}
                       </span>
@@ -224,11 +223,11 @@ export default function Editor({ template }: EditorProps) {
               <TabsContent value="complete" className="flex-1 flex flex-col mt-0 border-0 p-0">
                 <div className="flex h-full flex-col space-y-4">
                   <MonacoEditor
-                    height="75vh"
+                    height="70vh"
                     language={getMonacoLanguageId(selectedLanguage.name)}
                     value={code}
                     onChange={(value) => setCode(value || "")}
-                    theme="vs-dark"
+                    theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
                   />
                   <div className="flex items-center space-x-2">
                     {!isExecuting ? (
@@ -258,7 +257,7 @@ export default function Editor({ template }: EditorProps) {
                       language={getMonacoLanguageId(selectedLanguage.name)}
                       value={code}
                       onChange={(value) => setCode(value || "")}
-                      theme="vs-dark"
+                      theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
                     />
                     <div id="stdout" className="rounded-md border bg-muted">
                       <pre>{output}</pre>
@@ -288,11 +287,11 @@ export default function Editor({ template }: EditorProps) {
                       <div className="flex flex-1 flex-col space-y-2">
                         <Label htmlFor="input">Code</Label>
                         <MonacoEditor
-                          height="75vh"
+                          height="60vh"
                           language={getMonacoLanguageId(selectedLanguage.name)}
                           value={code}
                           onChange={(value) => setCode(value || "")}
-                          theme="vs-dark"
+                          theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
                         />
                       </div>
                       <div className="flex flex-col space-y-2">
@@ -313,8 +312,8 @@ export default function Editor({ template }: EditorProps) {
                     {!isExecuting ? (
                       <>
                         <Button onClick={executeCode}>Execute</Button>
-                        <Button variant="secondary">
-                          <span className="sr-only">Show history</span>
+                        <Button variant="secondary" onClick={() => {setOutput("")}}>
+                          <span className="sr-only">Clear Output</span>
                           <RotateCcw />
                         </Button>
                       </>
