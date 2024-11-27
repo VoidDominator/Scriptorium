@@ -47,7 +47,8 @@ export default function BlogHistoryPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch user blog posts.");
+        // If the user is not logged in, redirect immediately
+        router.replace("/users/signin");
       }
 
       const data = await response.json();

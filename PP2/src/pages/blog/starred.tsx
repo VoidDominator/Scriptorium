@@ -43,7 +43,8 @@ export default function StarredPostsPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch starred blog posts.");
+        // If the user is not logged in, redirect immediately
+        router.replace("/users/signin");
       }
 
       const data = await response.json();

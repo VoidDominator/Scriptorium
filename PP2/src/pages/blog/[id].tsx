@@ -94,7 +94,7 @@ export default function BlogPostPage() {
           .process(data.content);
         setHtmlContent(processedContent.toString());
       } catch (err) {
-        setError("Failed to load the blog post.");
+        setError("Blog does not exist or hidden by Adminstrator!");
       } finally {
         setLoading(false);
       }
