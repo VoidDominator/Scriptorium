@@ -20,9 +20,13 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarTrigger
 } from "@/components/ui/sidebar"
 
+import { ModeToggle } from "./theme-switcher"
+
 interface User {
+  // unused interface
   name: string
   email: string
   avatar: string
@@ -30,6 +34,7 @@ interface User {
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: User | null // User info or null if not logged in
+  
 }
 
 const defaultUser = {
@@ -40,6 +45,7 @@ const defaultUser = {
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const displayUser = user || defaultUser
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -49,6 +55,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           <Book className="h-6 w-6 text-primary cursor-pointer" />
           <span className="font-semibold text-lg text-primary">Scriptorium</span>
         </Link>
+        {/* <SidebarTrigger /> */}
       </SidebarHeader>
 
       {/* Sidebar Content */}
@@ -100,11 +107,8 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 
       {/* Sidebar Footer */}
       <SidebarFooter>
-        {user ? (
-          <NavUser user={user} />
-        ) : (
-          <div className="text-center text-sm">Not logged in</div>
-        )}
+        <ModeToggle isSidebarCollapsed={true} />
+          <NavUser />
       </SidebarFooter>
 
       {/* Sidebar Rail */}
