@@ -1,64 +1,108 @@
-import prisma from '../../../utils/db';
-import { authMiddleware } from '../../../utils/middleware';
+import prisma from "../../../utils/db";
+import { authMiddleware } from "../../../utils/middleware";
 
-// Handler for GET requests (public access) with pagination
+// Handler for GET requests (public access) with pagination and filtering
 async function getHandler(req, res) {
-  const page = parseInt(req.query.page) || 1;   // Current page, defaults to 1
-  const limit = parseInt(req.query.limit) || 10; // Items per page, defaults to 10
-  const skip = (page - 1) * limit;
+  const {
+    page = 1,
+    limit = 10,
+    title,
+    tag,
+    author,
+    sortBy = "id", // Default sorting by ID
+    order = "desc",
+  } = req.query;
+
+  const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+  // Normalize undefined or "undefined" query values
+  const normalizedTitle = title === "undefined" ? "" : title;
+  const normalizedTag = tag === "undefined" ? "" : tag;
+  const normalizedAuthor = author === "undefined" ? "" : author;
 
   try {
+    // Build filters dynamically based on query parameters
+    const filters = {
+      AND: [
+        normalizedTitle
+          ? { title: { contains: normalizedTitle, mode: "insensitive" } }
+          : undefined,
+        normalizedTag
+          ? {
+              tags: {
+                some: { name: { contains: normalizedTag, mode: "insensitive" } },
+              },
+            }
+          : undefined,
+        normalizedAuthor
+          ? {
+              user: {
+                OR: [
+                  { firstName: { contains: normalizedAuthor, mode: "insensitive" } },
+                  { lastName: { contains: normalizedAuthor, mode: "insensitive" } },
+                ],
+              },
+            }
+          : undefined,
+      ].filter(Boolean), // Remove undefined filters
+    };
+
+    // If no filters are provided, fetch all posts
+    const isDefaultFilter =
+      !normalizedTitle && !normalizedTag && !normalizedAuthor;
+
+    // Fetch blog posts with filtering and pagination
     const posts = await prisma.blogPost.findMany({
-      where: {
-        hidden: false, // Only include non-hidden blog posts
-      },
+      where: isDefaultFilter
+        ? { hidden: false } // Default case: fetch all non-hidden posts
+        : { ...filters, hidden: false }, // Apply filters and include non-hidden posts only
       include: {
         user: {
           select: {
             firstName: true,
-            lastName: true
-          }
-        }, // Only include firstName and lastName for user data
-        tags: true,
-        comments: {
-          where: {
-            hidden: false // Only include non-hidden comments
+            lastName: true,
           },
+        },
+        tags: { select: { name: true } },
+        comments: {
+          where: { hidden: false },
           include: {
             user: {
               select: {
                 firstName: true,
-                lastName: true
-              }
-            }
-          }
-        } // Only include non-hidden comments with limited user data
+                lastName: true,
+              },
+            },
+          },
+        },
       },
       skip,
-      take: limit,
+      take: parseInt(limit, 10),
       orderBy: {
-        createdAt: 'desc', // Order by creation date, newest first
+        [sortBy]: order.toLowerCase() === "asc" ? "asc" : "desc",
       },
     });
 
-    // Get total count of non-hidden posts for pagination metadata
+    // Get total count for pagination metadata
     const totalPosts = await prisma.blogPost.count({
-      where: { hidden: false },
+      where: isDefaultFilter ? { hidden: false } : { ...filters, hidden: false },
     });
-    const totalPages = Math.ceil(totalPosts / limit);
 
+    const totalPages = Math.ceil(totalPosts / parseInt(limit, 10));
+
+    // Return response with posts and pagination metadata
     return res.status(200).json({
       posts,
       pagination: {
         totalItems: totalPosts,
         totalPages,
-        currentPage: page,
-        pageSize: limit,
+        currentPage: parseInt(page, 10),
+        pageSize: parseInt(limit, 10),
       },
     });
   } catch (error) {
-    console.error('Failed to fetch blog posts:', error);
-    return res.status(500).json({ error: 'Failed to fetch blog posts' });
+    console.error("Failed to fetch blog posts:", error);
+    return res.status(500).json({ error: "Failed to fetch blog posts" });
   }
 }
 
@@ -73,34 +117,34 @@ async function postHandler(req, res) {
         title,
         description,
         content,
-        userId: user.userId, 
+        userId: user.userId,
         tags: {
-          connectOrCreate: tags.map(tag => ({
-            where: { name: tag }, 
+          connectOrCreate: tags.map((tag) => ({
+            where: { name: tag },
             create: { name: tag },
-          }))
+          })),
         },
       },
     });
 
     return res.status(201).json(newPost);
   } catch (error) {
-    console.error('Error creating post:', error);
-    return res.status(500).json({ error: 'Failed to create blog post' });
+    console.error("Error creating post:", error);
+    return res.status(500).json({ error: "Failed to create blog post" });
   }
 }
 
 // Main handler function
 async function handler(req, res) {
-  if (req.method === 'GET') {
+  if (req.method === "GET") {
     return getHandler(req, res);
   }
 
-  if (req.method === 'POST') {
+  if (req.method === "POST") {
     return authMiddleware(postHandler)(req, res);
   }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+  return res.status(405).json({ error: "Method not allowed" });
 }
 
 export default handler;
