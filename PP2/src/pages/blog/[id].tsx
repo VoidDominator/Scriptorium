@@ -263,14 +263,11 @@ export default function BlogPostPage() {
   };
 
   const handleBackToSearch = () => {
-    const query = new URLSearchParams({
-      page: page as string,
-      title: title as string,
-      tag: tag as string,
-      author: author as string,
-      sortBy: sortBy as string,
+    // Navigate back to the search page with the same query parameters
+    router.push({
+      pathname: "/blog-post/",
+      query: router.query, // Use the same query parameters
     });
-    router.push(`/blog/blog-post?${query.toString()}`);
   };
 
   if (loading) return <p className="text-center">Loading...</p>;
@@ -281,11 +278,11 @@ export default function BlogPostPage() {
       {post && (
         <div className="max-w-4xl mx-auto">
 
-          {/* Back to Search Results Button */}
+          {/* Back to Search Results Button
           <Button onClick={handleBackToSearch} className="flex justify-start">
               <ArrowLeft className="mr-2" />
               Back to Search Results
-            </Button>
+            </Button> */}
 
           {/* Title and Author */}
           <div className="mb-6">

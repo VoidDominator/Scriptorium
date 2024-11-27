@@ -4,7 +4,13 @@ import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"; // Import HoverCard components
 import { useRouter } from "next/router";
 import {
   Pagination,
@@ -18,8 +24,12 @@ import {
 interface BlogPost {
   id: string;
   title: string;
+  description: string; // Added description to the BlogPost type
   tags: { name: string }[];
   user: { firstName: string; lastName: string };
+  releaseTime: string; // Assuming the release time is provided as a string
+  rating: number; // Assuming ratings is a number
+  createdAt: string;
 }
 
 export default function BlogPostsPage() {
@@ -40,7 +50,6 @@ export default function BlogPostsPage() {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [activeField, setActiveField] = useState<"tag" | "content" | "title" | "template">("title"); // Default to "title"
-
   const router = useRouter();
 
   useEffect(() => {
@@ -121,9 +130,8 @@ export default function BlogPostsPage() {
       [activeField]: value, // Dynamically update the active field
     }));
   };
-  
-  
-  const handleSortChange = (sortBy:string, direction: string) => {
+
+  const handleSortChange = (sortBy: string, direction: string) => {
     setSearchParams((prev) => ({
       ...prev,
       sortBy: "rating",
@@ -158,7 +166,6 @@ export default function BlogPostsPage() {
             <Button className="mr-2">Filter</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-
             {/* Sorting options */}
             <DropdownMenuItem onClick={() => handleSortChange("rating", "desc")}>
               Rating (High to Low)
@@ -168,52 +175,51 @@ export default function BlogPostsPage() {
             </DropdownMenuItem>
 
             {/* Field selection options */}
-              <DropdownMenuItem
-                onClick={() => {
-                  setActiveField("tag");
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    tag: "",
-                  }));
-                }}
-              >
-                Tags
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setActiveField("title");
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    title: "",
-                  }));
-                }}
-              >
-                Title
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setActiveField("content");
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    content: "",
-                  }));
-                }}
-              >
-                Content
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setActiveField("template");
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    template: "",
-                  }));
-                }}
-              >
-                Template
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-
+            <DropdownMenuItem
+              onClick={() => {
+                setActiveField("tag");
+                setSearchParams((prev) => ({
+                  ...prev,
+                  tag: "",
+                }));
+              }}
+            >
+              Tags
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setActiveField("title");
+                setSearchParams((prev) => ({
+                  ...prev,
+                  title: "",
+                }));
+              }}
+            >
+              Title
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setActiveField("content");
+                setSearchParams((prev) => ({
+                  ...prev,
+                  content: "",
+                }));
+              }}
+            >
+              Content
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setActiveField("template");
+                setSearchParams((prev) => ({
+                  ...prev,
+                  template: "",
+                }));
+              }}
+            >
+              Template
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
 
         <Input
@@ -242,30 +248,42 @@ export default function BlogPostsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {posts.map((post) => (
-          <Card
-            key={post.id}
-            onClick={() => goToPost(post.id)}
-            className="cursor-pointer hover:shadow-lg"
-          >
-            <CardHeader>
-              <CardTitle>{post.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-muted mb-2">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag.name}
-                    className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full mr-2"
-                  >
-                    {tag.name}
-                  </span>
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Author: {post.user.firstName} {post.user.lastName}
+          <HoverCard key={post.id}>
+            <HoverCardTrigger>
+              <Card
+                onClick={() => goToPost(post.id)}
+                className="cursor-pointer hover:shadow-lg h-48 flex flex-col justify-between"
+              >
+                <CardHeader>
+                  <CardTitle>{post.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-2 line-clamp-2">{post.description}</p>
+                  <div className="text-muted">
+                    {post.tags.map((tag) => (
+                      <span
+                        key={tag.name}
+                        className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full mr-2"
+                      >
+                        {tag.name}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-64">
+              <p>
+                <strong>Author:</strong> {post.user.firstName} {post.user.lastName}
               </p>
-            </CardContent>
-          </Card>
+              <p>
+                <strong>Release Time:</strong> {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Ratings:</strong> {post.rating}
+              </p>
+            </HoverCardContent>
+          </HoverCard>
         ))}
       </div>
 
