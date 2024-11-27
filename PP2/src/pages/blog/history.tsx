@@ -160,7 +160,7 @@ export default function BlogHistoryPage() {
               </CardContent>
               <CardFooter className="flex justify-between items-center">
                 <Link href={`/blog/edit/${post.id}`} passHref>
-                  <Button variant="outline">Edit</Button>
+                  <Button variant="outline" onClick={(e) => e.stopPropagation()}>Edit</Button>
                 </Link>
                 <Button
                   onClick={(e) => {
