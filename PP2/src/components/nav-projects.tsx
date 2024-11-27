@@ -1,8 +1,7 @@
 import {
-  Folder,
-  Forward,
   MoreHorizontal,
-  Trash2,
+  NotepadText, //template
+  Atom,
   type LucideIcon,
 } from "lucide-react"
 
@@ -23,6 +22,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
+import { useRouter } from "next/router";
 
 export function NavProjects({
   projects,
@@ -34,6 +34,7 @@ export function NavProjects({
   }[]
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -59,18 +60,18 @@ export function NavProjects({
                 side={isMobile ? "bottom" : "right"}
                 align={isMobile ? "end" : "start"}
               >
-                <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>View Project</span>
+                <DropdownMenuItem onClick={() => router.push("/blog/history")}>
+                  <Atom className="text-muted-foreground" />
+                  <span>View My Blog Post</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                   <Forward className="text-muted-foreground" />
                   <span>Share Project</span>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Trash2 className="text-muted-foreground" />
-                  <span>Delete Project</span>
+                <DropdownMenuItem onClick={() => router.push("/templates/my")}>
+                  <NotepadText className="text-muted-foreground" />
+                  <span>View My Templates</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
