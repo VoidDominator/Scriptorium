@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from "react-markdown";
+import debounce from "lodash/debounce";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 
 export default function CreateBlogPostPage() {
@@ -22,6 +23,10 @@ export default function CreateBlogPostPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
+  const [templateSearchQuery, setTemplateSearchQuery] = useState("");
+  const [templateLoading, setTemplateLoading] = useState(false);
 
   const TITLE_MAX_LENGTH = 34;
   const DESCRIPTION_MAX_LENGTH = 50;
@@ -32,15 +37,13 @@ export default function CreateBlogPostPage() {
     const redirectIfNotLoggedIn = async () => {
       const response = await fetchWithAuthRetry("/api/users/me");
       if (!response.ok) {
-        // If the user is not logged in, redirect immediately
         router.replace("/users/signin");
       } else {
-        // If logged in, set the user data
         const userData = await response.json();
         setUser(userData);
       }
     };
-  
+
     redirectIfNotLoggedIn();
   }, [router]);
 
@@ -89,12 +92,73 @@ export default function CreateBlogPostPage() {
         throw new Error("Failed to create the blog post.");
       }
 
+      const { id: blogPostId } = await response.json();
+
+      if (selectedTemplates.length > 0) {
+        await linkTemplatesToBlogPost(blogPostId, selectedTemplates);
+      }
+
       router.push("/blog/blog-post");
     } catch (err) {
       setError("Failed to create the blog post. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const linkTemplatesToBlogPost = async (blogPostId: string, templateIds: number[]) => {
+    try {
+      // console.log("the blog post id:", blogPostId);
+      // console.log("the templates list:", templateIds)
+      const response = await fetchWithAuthRetry(`/api/blog-post/${blogPostId}/templates`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ templateIds }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to link templates to blog post.");
+      }
+    } catch (err) {
+      console.error("Error linking templates:", err);
+    }
+  };
+
+  const fetchTemplates = debounce(async () => {
+    setTemplateLoading(true);
+    try {
+      const response = await fetch(
+        `/api/templates?title=${templateSearchQuery}&itemPerPage=10`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setTemplates(data.templates);
+      } else {
+        setTemplates([]);
+      }
+    } catch (err) {
+      console.error("Error fetching templates:", err);
+    } finally {
+      setTemplateLoading(false);
+    }
+  }, 300);
+
+  useEffect(() => {
+    if (templateSearchQuery !== "") {
+      fetchTemplates();
+    }
+  }, [templateSearchQuery]);
+
+  const handleTemplateSelection = (templateId: number) => {
+    setSelectedTemplates((prev) =>
+      prev.includes(templateId)
+        ? prev.filter((id) => id !== templateId) // Unselect if already selected
+        : [...prev, templateId]
+    );
   };
 
   return (
@@ -188,6 +252,33 @@ export default function CreateBlogPostPage() {
                 </span>
               ))}
             </div>
+          </div>
+          <div>
+            <Label htmlFor="template-search" className="mb-1">
+              Link Templates
+            </Label>
+            <Input
+              id="template-search"
+              placeholder="Search for templates"
+              value={templateSearchQuery}
+              onChange={(e) => setTemplateSearchQuery(e.target.value)}
+            />
+            {templateLoading ? (
+              <p className="text-sm text-gray-500 mt-2">Loading templates...</p>
+            ) : (
+              <div className="mt-4 space-y-2">
+                {templates.map((template: any) => (
+                  <div key={template.id} className="flex items-center space-x-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedTemplates.includes(template.id)}
+                      onChange={() => handleTemplateSelection(template.id)}
+                    />
+                    <span>{template.title}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </CardContent>
         <Separator />
