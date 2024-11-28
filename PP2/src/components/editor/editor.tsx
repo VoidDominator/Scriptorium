@@ -349,7 +349,7 @@ export default function Editor({ template }: EditorProps) {
                       onChange={(value) => setCode(value || "")}
                       theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
                     />
-                    <div id="stdout" className="rounded-md border bg-muted max-h-64 overflow-auto">
+                    <div id="stdout" className="rounded-md border bg-muted overflow-auto">
                       <pre className="whitespace-pre-wrap">{output}</pre>
                     </div>
                   </div>
