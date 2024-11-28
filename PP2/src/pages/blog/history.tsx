@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/pagination";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry"; 
 import Link from "next/link";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface BlogPost {
   id: string;
@@ -120,7 +121,7 @@ export default function BlogHistoryPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">My Blog Posts</h1>
+      <h1 className="text-2xl font-bold mb-6"> <SidebarTrigger className="h-10 w-10 text-lg"/> My Blog Posts</h1>
       {error && <p className="text-red-500">{error}</p>}
 
       <TooltipProvider>

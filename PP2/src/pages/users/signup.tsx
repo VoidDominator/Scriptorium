@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/router"
 import { Eye, EyeOff } from "lucide-react"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export default function SignUpPage() {
   const [firstName, setFirstName] = useState("")
@@ -71,6 +72,7 @@ export default function SignUpPage() {
   return (
     <div className="flex h-screen w-full items-center justify-center bg-muted">
       <Card className="w-[400px] shadow-lg">
+      <SidebarTrigger className="h-10 w-10 text-lg"/>
         <CardHeader>
           <CardTitle className="text-center text-2xl">Sign Up</CardTitle>
         </CardHeader>

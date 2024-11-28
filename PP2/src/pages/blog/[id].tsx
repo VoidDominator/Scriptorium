@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Flag } from "lucide-react";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 
 interface Comment {
@@ -281,7 +282,6 @@ export default function BlogPostPage() {
     <div className="container mx-auto p-4">
       {post && (
         <div className="max-w-4xl mx-auto">
-
           {/* Back to Search Results Button
           <Button onClick={handleBackToSearch} className="flex justify-start">
               <ArrowLeft className="mr-2" />
@@ -290,7 +290,7 @@ export default function BlogPostPage() {
 
           {/* Title and Author */}
           <div className="mb-6">
-            <h1 className="text-4xl font-bold mb-2">{post.title}</h1>
+            <h1 className="text-4xl font-bold mb-2"> <SidebarTrigger className="h-10 w-10 text-lg"/> {post.title}</h1>
             <p className="text-sm text-muted-foreground mb-4">
               Released on {new Date(post.createdAt).toLocaleDateString()}
             </p>
