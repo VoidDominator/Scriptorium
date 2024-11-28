@@ -27,6 +27,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       fetchWithAuthRetry('/api/users/profile', { method: "GET" })
         .then((res) => {
           if (!res.ok) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
             throw new Error('Failed to fetch user data');
           }
           return res.json();

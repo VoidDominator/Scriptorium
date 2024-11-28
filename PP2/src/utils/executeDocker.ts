@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
 
 const execAsync = promisify(exec);
 
@@ -102,6 +103,7 @@ export async function execute(
 
   const config = languageConfig[language];
   if (!config) {
+    toast.error(`Support for ${language} is coming soon.`);
     throw new Error('Language not supported');
   }
 
