@@ -322,8 +322,8 @@ export default function Editor({ template }: EditorProps) {
                     {!isExecuting ? (
                       <>
                         <Button onClick={executeCode}>Execute</Button>
-                        <Button variant="secondary">
-                          <span className="sr-only">Show history</span>
+                        <Button variant="secondary" onClick={() => {setOutput("")}}>
+                          <span className="sr-only">Clear Output</span>
                           <RotateCcw />
                         </Button>
                       </>
@@ -356,8 +356,8 @@ export default function Editor({ template }: EditorProps) {
                     {!isExecuting ? (
                       <>
                         <Button onClick={executeCode}>Execute</Button>
-                        <Button variant="secondary">
-                          <span className="sr-only">Show history</span>
+                        <Button variant="secondary" onClick={() => {setOutput("")}}>
+                          <span className="sr-only">Clear Output</span>
                           <RotateCcw />
                         </Button>
                       </>

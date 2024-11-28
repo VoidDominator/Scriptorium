@@ -96,13 +96,13 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
       <HoverCard openDelay={200}>
         <HoverCardTrigger asChild>
           <DialogTrigger asChild>
-            <Button variant="default" className="w-full" disabled={user?.id !== template.userId}>
+            <Button variant="default" className="w-full" disabled={(user?.id !== template.userId) && template.id}>
               {template.id ? "Save..." : "Create..."}
             </Button>
           </DialogTrigger>
         </HoverCardTrigger>
         <HoverCardContent side="left" align="center" className="text-sm">
-          {user?.id !== template.userId ? (
+          {user?.id !== template.userId && template.id ? (
             <span>This is not yours. Create a fork if you want to modify.</span>
           ) : template.id ? (
             <span>
