@@ -255,7 +255,7 @@ export default function BlogPostsPage() {
             <HoverCardTrigger>
               <Card
                 onClick={() => goToPost(post.id)}
-                className="cursor-pointer hover:shadow-lg h-48 flex flex-col justify-between"
+                className="cursor-pointer hover:shadow-lg h-64 flex flex-col justify-between"
               >
                 <CardHeader>
                   <CardTitle>{post.title}</CardTitle>

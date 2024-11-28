@@ -130,7 +130,7 @@ export default function BlogHistoryPage() {
           {posts.map((post) => (
             <Card
               key={post.id}
-              className="relative h-64 flex flex-col justify-between border shadow-lg"
+              className="relative h-72 flex flex-col justify-between border shadow-lg"
               onClick={() => goToBlog(post.id)}
             >
               {/* Red Flag for Hidden Posts */}
