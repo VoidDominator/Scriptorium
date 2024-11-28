@@ -86,7 +86,7 @@ const Homepage: FC = () => {
         <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mt-6">
           {[
             { name: "Python", icon: "/icons/python-svgrepo-com.svg" },
-            { name: "JavaScript", icon: "/icons/node-16-svgrepo-com.svg" },
+            { name: "JavaScript", icon: "/icons/javascript-svgrepo-com.svg" },
             { name: "C++", icon: "/icons/c.svg" },
             { name: "Java", icon: "/icons/java-4-logo-svgrepo-com.svg" },
             { name: "C", icon: "/icons/c-1.svg" },
