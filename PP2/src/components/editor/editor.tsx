@@ -190,11 +190,11 @@ export default function Editor({ template }: EditorProps) {
         <SidebarTrigger />
         <h2 className="text-lg font-semibold flex-1">{template.title || "Editor"}</h2>
         {/* <div className="ml-auto flex w-full space-x-2 sm:justify-end"> */}
-          {/* <PresetSelector presets={presets} /> */}
-          {/* <div className="hidden space-x-2 md:flex"> */}
-            {/* <CodeViewer /> */}
-            {/* <PresetShare /> */}
-          {/* </div> */}
+        {/* <PresetSelector presets={presets} /> */}
+        {/* <div className="hidden space-x-2 md:flex"> */}
+        {/* <CodeViewer /> */}
+        {/* <PresetShare /> */}
+        {/* </div> */}
         {/* </div> */}
       </div>
       <Separator />
@@ -279,7 +279,7 @@ export default function Editor({ template }: EditorProps) {
                 </p>
               </div>
               <div className="mt-4">
-                <h3 className="text-md font-semibold">{forkedTemplate ? ("Forked from"):("")}</h3>
+                <h3 className="text-md font-semibold">{forkedTemplate ? ("Forked from") : ("")}</h3>
                 {forkedTemplate ? (
                   <Link href={`/editor/${forkedTemplate.id}`}>
                     <div className="text-sm text-blue-500 hover:underline">{forkedTemplate.title}</div>
@@ -323,7 +323,7 @@ export default function Editor({ template }: EditorProps) {
                     {!isExecuting ? (
                       <>
                         <Button onClick={executeCode}>Execute</Button>
-                        <Button variant="secondary" onClick={() => {setOutput("")}}>
+                        <Button variant="secondary" onClick={() => { setOutput("") }}>
                           <span className="sr-only">Clear Output</span>
                           <RotateCcw />
                         </Button>
@@ -334,8 +334,8 @@ export default function Editor({ template }: EditorProps) {
                       </div>
                     )}
                   </div>
-                  <div id="stdout" className="rounded-md border bg-muted">
-                    <pre>{output}</pre>
+                  <div id="stdout" className="rounded-md border bg-muted max-h-64 overflow-auto">
+                    <pre className="whitespace-pre-wrap">{output}</pre>
                   </div>
                 </div>
               </TabsContent>
@@ -349,15 +349,15 @@ export default function Editor({ template }: EditorProps) {
                       onChange={(value) => setCode(value || "")}
                       theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
                     />
-                    <div id="stdout" className="rounded-md border bg-muted">
-                      <pre>{output}</pre>
+                    <div id="stdout" className="rounded-md border bg-muted max-h-64 overflow-auto">
+                      <pre className="whitespace-pre-wrap">{output}</pre>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     {!isExecuting ? (
                       <>
                         <Button onClick={executeCode}>Execute</Button>
-                        <Button variant="secondary" onClick={() => {setOutput("")}}>
+                        <Button variant="secondary" onClick={() => { setOutput("") }}>
                           <span className="sr-only">Clear Output</span>
                           <RotateCcw />
                         </Button>
@@ -394,15 +394,15 @@ export default function Editor({ template }: EditorProps) {
                         />
                       </div>
                     </div>
-                    <div className="mt-[21px] min-h-[400px] rounded-md border bg-muted lg:min-h-[700px]">
-                      <pre>{output}</pre>
+                    <div className="mt-[21px] min-h-[400px] max-h-64 overflow-auto rounded-md border bg-muted lg:min-h-[700px]">
+                      <pre className="whitespace-pre-wrap">{output}</pre>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     {!isExecuting ? (
                       <>
                         <Button onClick={executeCode}>Execute</Button>
-                        <Button variant="secondary" onClick={() => {setOutput("")}}>
+                        <Button variant="secondary" onClick={() => { setOutput("") }}>
                           <span className="sr-only">Clear Output</span>
                           <RotateCcw />
                         </Button>
