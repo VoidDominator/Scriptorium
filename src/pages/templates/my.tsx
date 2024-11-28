@@ -46,7 +46,7 @@ export default function TemplatesPage() {
         tags,
         explaination: description, // Map description to explaination
         content,
-        userId: user?.id,
+        userId: user?.id ?? "",
         itemPerPage,
         page: currentPage,
       });

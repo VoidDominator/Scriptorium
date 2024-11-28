@@ -26,8 +26,10 @@ export function DataTable<TData, TValue>({ columns, data, currentPage, totalPage
           <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={column.accessorKey as string}>
-                  {flexRender(column.header, {})}
+                  
+                <TableHead key={column.id as string}>
+                  {// @ts-ignore
+                  flexRender(column.header, {})}
                 </TableHead>
               ))}
             </TableRow>
@@ -41,9 +43,10 @@ export function DataTable<TData, TValue>({ columns, data, currentPage, totalPage
                   onClick={() => router.push(`/editor/${(row as any).id}`)}
                 >
                   {columns.map((column) => (
-                    <TableCell key={column.accessorKey as string}>
+                    <TableCell key={column.id as string}>
                       {flexRender(
                         column.cell,
+                        // @ts-ignore
                         { getValue: () => (row as any)[column.accessorKey as string] }
                       )}
                     </TableCell>

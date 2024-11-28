@@ -97,7 +97,7 @@ export function SaveTemplateButton({ template, code }: SaveTemplateButtonProps) 
       <HoverCard openDelay={200}>
         <HoverCardTrigger asChild>
           <DialogTrigger asChild>
-            <Button variant="default" className="w-full" disabled={(user?.id !== template.userId) && template.id}>
+            <Button variant="default" className="w-full" disabled={(user?.id !== template.userId) && !!template.id}>
               {template.id ? "Save..." : "Create..."}
             </Button>
           </DialogTrigger>
