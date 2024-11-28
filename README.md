@@ -1,3 +1,5 @@
+# Scriptorium Frontend Demo
+
 # Scriptorium Backend API Documentation
 
 Scriptorium is a backend API project built using Next.js, Prisma, and JWT-based authentication. The goal is to provide a platform where users can write, save, execute, and share code templates, interact with blog posts, and report inappropriate content.
