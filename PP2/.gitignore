@@ -41,5 +41,5 @@ user_execution/Main.class
 user_execution/Main.java
 
 # prisma local dev db
-prisma/dev.db
-prisma/migrations
+# prisma/dev.db
+# prisma/migrations

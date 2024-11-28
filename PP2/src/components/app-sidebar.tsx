@@ -69,7 +69,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               isActive: true,
               items: [
                 { title: "Getting Started", url: "/editor" },
-                { title: "Tutorial", url: "#" },
+                { title: "Supported Languages", url: "/" },
               ],
             },
             {
