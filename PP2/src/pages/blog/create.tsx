@@ -29,9 +29,9 @@ export default function CreateBlogPostPage() {
   const [templateSearchQuery, setTemplateSearchQuery] = useState("");
   const [templateLoading, setTemplateLoading] = useState(false);
 
-  const TITLE_MAX_LENGTH = 34;
-  const DESCRIPTION_MAX_LENGTH = 50;
-  const TAG_MAX_LENGTH = 10;
+  const TITLE_MAX_LENGTH = 50;
+  const DESCRIPTION_MAX_LENGTH = 80;
+  const TAG_MAX_LENGTH = 12;
 
   // Check if the user is logged in
   useEffect(() => {

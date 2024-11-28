@@ -32,9 +32,9 @@ export default function EditBlogPostPage() {
   const [templateLoading, setTemplateLoading] = useState(false); // Loading state for templates
 
 
-  const TITLE_MAX_LENGTH = 34;
-  const DESCRIPTION_MAX_LENGTH = 50;
-  const TAG_MAX_LENGTH = 10;
+  const TITLE_MAX_LENGTH = 50;
+  const DESCRIPTION_MAX_LENGTH = 80;
+  const TAG_MAX_LENGTH = 12;
 
   // Fetch existing blog post data
   useEffect(() => {
