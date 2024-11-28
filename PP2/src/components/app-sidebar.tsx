@@ -34,7 +34,7 @@ interface User {
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: User | null // User info or null if not logged in
-  
+
 }
 
 const defaultUser = {
@@ -106,7 +106,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       {/* Sidebar Footer */}
       <SidebarFooter>
         <ModeToggle isSidebarCollapsed={true} />
-          <NavUser />
+        <NavUser />
       </SidebarFooter>
 
       {/* Sidebar Rail */}
