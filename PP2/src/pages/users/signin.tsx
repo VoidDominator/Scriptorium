@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/router";
 import { useUser } from "@/context/user-context";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -67,8 +68,9 @@ export default function SignInPage() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-muted">
       <Card className="w-[400px] shadow-lg">
+      <SidebarTrigger className="h-10 w-10 text-lg"/>
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Sign In</CardTitle>
+          <CardTitle className="text-center text-2xl"> Sign In</CardTitle>
         </CardHeader>
         <form onSubmit={handleSignIn}>
           <CardContent className="space-y-4">

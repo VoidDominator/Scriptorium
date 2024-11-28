@@ -13,6 +13,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface BlogPost {
   id: string;
@@ -77,7 +78,7 @@ export default function StarredPostsPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Starred Blog Posts</h1>
+      <h1 className="text-2xl font-bold mb-6"> <SidebarTrigger className="h-10 w-10 text-lg"/> Starred Blog Posts</h1>
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

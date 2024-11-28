@@ -20,6 +20,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface BlogPost {
   id: string;
@@ -161,6 +162,7 @@ export default function BlogPostsPage() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex items-center mb-4">
+        <SidebarTrigger className="h-10 w-10 text-lg"/>
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Button className="mr-2">Filter</Button>

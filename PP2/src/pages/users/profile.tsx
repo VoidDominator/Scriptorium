@@ -13,6 +13,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -67,9 +68,11 @@ export default function ProfilePage() {
   }, []);
 
   return (
+    
     <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Card className="w-full max-w-[700px] shadow-xl border border-gray-200 rounded-lg overflow-hidden dark:border-gray-700">
-        <CardHeader className="flex flex-col items-center bg-blue-500 text-white py-6 dark:bg-blue-700">
+      <SidebarTrigger className="h-10 w-10 text-lg"/>
+        <CardHeader className="flex flex-col items-center bg-blue-500 text-white py-6 dark:bg-gray-800">
           <Avatar className="h-28 w-28 mb-4 overflow-hidden rounded-full border-4 border-white shadow-md">
             <AvatarImage
               src={profile.avatar || '/default-avatar.png'}

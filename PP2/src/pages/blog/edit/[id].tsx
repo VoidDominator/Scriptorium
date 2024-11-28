@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from "react-markdown";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 import debounce from "lodash/debounce";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function EditBlogPostPage() {
   const router = useRouter();
@@ -186,7 +187,7 @@ export default function EditBlogPostPage() {
     <div className="container mx-auto p-4">
       <Card className="max-w-3xl mx-auto shadow-lg">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Edit Blog Post</CardTitle>
+          <CardTitle className="text-center text-2xl"> <SidebarTrigger className="h-10 w-10 text-lg"/> Edit Blog Post</CardTitle>
         </CardHeader>
         <Separator />
         <CardContent className="space-y-4">

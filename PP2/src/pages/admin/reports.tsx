@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { fetchWithAuthRetry } from "@/utils/fetchWithAuthRetry";
 import { Separator } from "@/components/ui/separator";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@radix-ui/react-hover-card";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface ReportedContent {
   id: string;
@@ -109,7 +110,7 @@ export default function AdminReportsPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Reported Content</h1>
+      <h1 className="text-2xl font-bold mb-6"> <SidebarTrigger className="h-10 w-10 text-lg"/> Reported Content</h1>
       <Separator className="mb-6" />
 
       {/* Reported Blog Posts */}

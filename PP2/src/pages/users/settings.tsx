@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
 import { useUser } from '@/context/user-context';
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -168,6 +169,7 @@ export default function ProfilePage() {
   return (
     <div className="flex h-screen w-full items-center justify-center bg-muted">
       <Card className="w-full max-w-[600px] shadow-lg">
+      <SidebarTrigger className="h-10 w-10 text-lg"/>
         <CardHeader className="flex flex-col items-center">
           <Avatar className="h-24 w-24 mb-4 overflow-hidden rounded-full border border-gray-300">
             <AvatarImage
