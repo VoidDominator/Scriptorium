@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouter } from "next/router";
+import { FaTwitter, FaGithub, FaYoutube } from "react-icons/fa";
 
 const Homepage: FC = () => {
   const router = useRouter();
@@ -54,7 +55,7 @@ const Homepage: FC = () => {
             <CardTitle>Create and Share Templates</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Save your code as reusable templates and share them with others.</p>
+            <p>Save your code as reusable templates and share them with others. Fork the code and try on your hand.</p>
           </CardContent>
           <CardFooter>
             <Button variant="link" onClick={() => router.push("/templates")}>
@@ -67,7 +68,7 @@ const Homepage: FC = () => {
             <CardTitle>Read and Write Blogs</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Learn from others and share your own experiences through blog posts.</p>
+            <p>Learn from others and share your own experiences through blog posts. Comment and vote to show your opinions.</p>
           </CardContent>
           <CardFooter>
             <Button variant="link" onClick={() => router.push("/blog/blog-post")}>
@@ -78,7 +79,7 @@ const Homepage: FC = () => {
       </section>
 
       {/* Compatible Programming Languages */}
-      <section className="my-12 text-center">
+      <section className="my-18 text-center">
         <h2 className="text-2xl font-bold">Compatible Programming Languages</h2>
         <p className="text-gray-600 mt-2">
           Our platform supports a wide range of programming languages for your coding needs.
@@ -113,8 +114,24 @@ const Homepage: FC = () => {
         </div>
       </section>
 
+      {/* Getting Started Section */}
+      <section className="text-center my-12">
+        <h2 className="text-3xl font-bold">Getting Started for Free</h2>
+        <p className="text-lg text-gray-600 mt-2">
+          Join Scriptorium today and experience how it improves your coding efficiency and collaboration.
+        </p>
+        <Button className="mt-6 px-6 py-3 text-lg" onClick={() => router.push("/users/signup")}>
+          Get Started
+        </Button>
+
+        <p className="text-lg text-gray-600 mt-6">
+          More than 100 daily active users to build our own coding community.
+        </p>
+      </section>
+
+
       {/* Coding Changing Our Daily Life */}
-      <section className="my-12">
+      <section className="my-20">
         <h2 className="text-2xl font-bold text-center mb-6">Coding Changing Our Daily Life</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
@@ -152,16 +169,110 @@ const Homepage: FC = () => {
         </div>
       </section>
 
-      {/* Getting Started Section */}
-      <section className="text-center my-12">
-        <h2 className="text-3xl font-bold">Getting Started for Free</h2>
-        <p className="text-lg text-gray-600 mt-2">
-          Join Scriptorium today and experience how it improves your coding efficiency and collaboration.
-        </p>
-        <Button className="mt-6 px-6 py-3 text-lg" onClick={() => router.push("/users/signup")}>
-          Get Started
-        </Button>
-      </section>
+      
+
+      {/* Footer Section */}
+      <footer className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            {/* Features Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Features</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="/blog/blog-post" className="hover:text-blue-900">
+                    Blog Posts
+                  </a>
+                </li>
+                <li>
+                  <a href="/templates" className="hover:text-blue-900">
+                    Templates
+                  </a>
+                </li>
+                <li>
+                  <a href="/editor" className="hover:text-blue-900">
+                    Code Compilers
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Tech Frame Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Tech Frame</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="https://nextjs.org/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-900">
+                    Next.js
+                  </a>
+                </li>
+                <li>
+                  <a href="https://reactjs.org/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-900">
+                    React
+                  </a>
+                </li>
+                <li>
+                  <a href="https://ui.shadcn.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-900">
+                    shadcn/ui
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Social Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Social</h3>
+              <ul className="space-y-2">
+                <li className="flex items-center">
+                  <FaTwitter className="mr-2 text-blue-400" />
+                  <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-900">
+                    Twitter
+                  </a>
+                </li>
+                <li className="flex items-center">
+                  <FaGithub className="mr-2 text-gray-300" />
+                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-900">
+                    GitHub
+                  </a>
+                </li>
+                <li className="flex items-center">
+                  <FaYoutube className="mr-2 text-red-500" />
+                  <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-900">
+                    YouTube
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* About Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">About</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="https://www.cs.toronto.edu/~kianoosh/courses/csc309" className="hover:text-blue-900">
+                    Ours
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.cs.toronto.edu/~kianoosh/courses/csc309" className="hover:text-blue-900">
+                    Contact Us
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.cs.toronto.edu/~kianoosh/courses/csc309" className="hover:text-blue-900">
+                    Privacy Policy
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Footer Bottom */}
+          <div className="mt-8 pt-4 text-center">
+            <p className="text-sm">&copy; 2024 Scriptorium. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
