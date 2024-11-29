@@ -1,4 +1,60 @@
-# Scriptorium Frontend Demo
+# Scriptorium
+
+Scriptorium is a full-stack web application designed to be a dynamic platform for developers to create, share, and collaborate on code templates, blogs, and programming insights. Built with **Next.js**, **TypeScript**, and **Prisma**, Scriptorium enables seamless integration of frontend and backend functionality to enhance coding productivity and community engagement.
+
+This project is mainly based on handouts give from University of Toronto, CSC309. The corresponding instructions are: 
+https://www.cs.toronto.edu/~kianoosh/courses/csc309/resources/handouts/?source=pp1
+https://www.cs.toronto.edu/~kianoosh/courses/csc309/resources/handouts/?source=pp2
+
+---
+
+## Features
+
+### **1. Blog Post Management**
+- Users can create, read, update, and delete blog posts.
+- Includes a rich search and filter system by title, tags, content, and templates.
+- Supports ratings, upvotes, and comments for blog posts.
+
+### **2. Code Templates**
+- Users can create reusable templates with metadata (title, description, and code).
+- Templates are categorized by programming languages and tags.
+- Search and fork existing templates for collaborative coding.
+
+### **3. Programming Language Support**
+- Support for multiple languages, including:
+  - Python, JavaScript, C++, Java, Ruby, Go, PHP, Swift, Kotlin, Rust, TypeScript, Perl, Scala, and C.
+
+### **4. Authentication and User Profiles**
+- Secure authentication using tokens.
+- User profiles with avatars, blog statistics, and activity logs.
+- Editable profiles and privacy settings.
+
+### **5. Code Compilation and Execution**
+- Interactive editor with syntax highlighting and real-time code execution for multiple programming languages.
+
+### **6. Admin Features**
+- Admins can moderate blog posts and templates, hiding inappropriate content.
+- Report system for abusive comments or posts.
+
+---
+
+## Tech Stack
+
+### **Frontend**
+- **Next.js**: React-based framework for server-side rendering and static site generation.
+- **TypeScript**: Ensures type safety throughout the project.
+- **shadcn/ui**: Provides accessible and reusable UI components.
+- **React Icons**: Enhances visual appeal with scalable icons.
+
+### **Backend**
+- **Prisma**: Database ORM for efficient data modeling and querying.
+- **SQLite**: Database for storing application data.
+- **Node.js**: Runtime environment for backend logic.
+
+### **Miscellaneous**
+- **ESLint & Prettier**: Code linting and formatting.
+- **Sonner**: Toast notifications for better UX.
+- **dotenv**: Manage environment variables.
 
 # Scriptorium Backend API Documentation
 
@@ -51,7 +107,7 @@ Scriptorium is a backend API project built using Next.js, Prisma, and JWT-based 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://markus.teach.cs.toronto.edu/git/markus/csc309-2024-09/group_7329
+   git clone https://github.com/VoidDominator/Scriptorium.git
    cd PP1
    ```
 
