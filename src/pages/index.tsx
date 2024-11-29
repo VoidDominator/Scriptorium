@@ -9,14 +9,15 @@ import { FaTwitter, FaGithub, FaYoutube } from "react-icons/fa";
 const Homepage: FC = () => {
   const router = useRouter();
 
-  const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      const query = (event.target as HTMLInputElement).value;
-      if (query.trim()) {
-        router.push(`/search?query=${encodeURIComponent(query)}`);
-      }
-    }
-  };
+  {/* The abandoned code of search bar*/}
+  // const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (event.key === "Enter") {
+  //     const query = (event.target as HTMLInputElement).value;
+  //     if (query.trim()) {
+  //       router.push(`/search?query=${encodeURIComponent(query)}`);
+  //     }
+  //   }
+  // };
 
   return (
     <div className="container mx-auto px-4 py-8">
