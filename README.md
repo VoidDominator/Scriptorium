@@ -2,7 +2,7 @@
 
 Scriptorium is a full-stack web application designed to be a dynamic platform for developers to create, share, and collaborate on code templates, blogs, and programming insights. Built with **Next.js**, **TypeScript**, and **Prisma**, Scriptorium enables seamless integration of frontend and backend functionality to enhance coding productivity and community engagement.
 
-This project is mainly based on handouts give from University of Toronto, CSC309. The corresponding instructions are: 
+This project is mainly based on handouts give from University of Toronto, CSC309. The instructions are: 
 https://www.cs.toronto.edu/~kianoosh/courses/csc309/resources/handouts/?source=pp1
 https://www.cs.toronto.edu/~kianoosh/courses/csc309/resources/handouts/?source=pp2
 
