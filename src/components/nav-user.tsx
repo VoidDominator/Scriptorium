@@ -108,10 +108,10 @@ export function NavUser() {
             </DropdownMenuLabel>
             {/* <DropdownMenuSeparator /> */}
             <DropdownMenuGroup>
-              {/* <DropdownMenuItem>
+              <DropdownMenuItem onClick = {() => router.push('users/upgrade')}>
                 <Sparkles />
                 Upgrade to Pro
-              </DropdownMenuItem> */}
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             {/* <DropdownMenuSeparator /> */}
             <DropdownMenuGroup>

@@ -24,6 +24,8 @@ model User {
   lastLogin   DateTime  @default(now())
   role        String    @default("USER")
   phoneNumber String?   @default("")// optinonal field
+  isPro       Boolean  @default(false) // Tracks Pro status
+  proExpiresAt DateTime? // Optional: Expiry for Pro status if it is subscription-based
 
   templates   Template[]
   BlogPost    BlogPost[]
