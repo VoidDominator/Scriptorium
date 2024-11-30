@@ -9,13 +9,13 @@ export const config = {
   },
 };
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const sig = req.headers['stripe-signature'];
 
   let event;
 
   try {
-    // Verify the Stripe signature
+    // Verify the Stripe webhook signature
     const rawBody = await new Promise((resolve, reject) => {
       let data = '';
       req.on('data', chunk => (data += chunk));
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     const userId = paymentIntent.metadata.userId;
 
     try {
-      // Update user to Pro status
+      // Update user's Pro status
       await prisma.user.update({
         where: { id: userId },
         data: {
@@ -53,3 +53,5 @@ export default async function handler(req, res) {
 
   res.status(200).json({ received: true });
 }
+
+export default handler;

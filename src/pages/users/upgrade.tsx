@@ -4,6 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { loadStripe } from "@stripe/stripe-js";
+
+// Initialize stripePromise with your publishable key
+const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY!);
+
 
 const UpgradeToPro: React.FC = () => {
   const [selectedMethod, setSelectedMethod] = useState<"card" | "apple" | "paypal">("card");
@@ -14,10 +19,48 @@ const UpgradeToPro: React.FC = () => {
   const handleUpgrade = async () => {
     setLoading(true);
     setError(null);
-
+  
     try {
       if (selectedMethod === "card") {
-        console.log("Processing card payment...");
+        const accessToken = localStorage.getItem("accesstoken");
+        // Step 1: Request clientSecret from the backend
+        const response = await fetch("/api/users/upgrade", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`, // Replace with actual JWT handling logic
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to create payment intent. Please try again.");
+        }
+  
+        const { clientSecret } = await response.json();
+  
+        // Step 2: Confirm the payment using Stripe.js
+        const stripe = await stripePromise;
+  
+        if (!stripe) {
+          throw new Error("Stripe.js failed to load.");
+        }
+  
+        const { error } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: {
+              token: "tok_visa", // Replace with real card input via Stripe Elements
+            },
+            billing_details: {
+              name: (document.getElementById("name") as HTMLInputElement)?.value,
+            },
+          },
+        });
+  
+        if (error) {
+          throw new Error(error.message || "Payment failed. Please try again.");
+        }
+  
+        // Payment succeeded
         setSuccess(true);
       } else {
         setError("Payment method not implemented yet.");
@@ -28,6 +71,24 @@ const UpgradeToPro: React.FC = () => {
       setLoading(false);
     }
   };
+  
+//   const handleUpgrade = async () => {
+//     setLoading(true);
+//     setError(null);
+
+//     try {
+//       if (selectedMethod === "card") {
+//         console.log("Processing card payment...");
+//         setSuccess(true);
+//       } else {
+//         setError("Payment method not implemented yet.");
+//       }
+//     } catch (err: any) {
+//       setError(err.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
   return (
     <div className="flex w-full items-center justify-center min-h-screen bg-gray-100">
