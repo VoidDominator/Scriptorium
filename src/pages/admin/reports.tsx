@@ -14,6 +14,7 @@ interface ReportedContent {
   id: string;
   title?: string; // For posts
   content: string; // For posts or comments
+  description: string;
   user: { firstName: string; lastName: string; email: string; avatar: string };
   reports: { reason: string; createdAt: string }[];
   hidden: boolean;
@@ -128,10 +129,18 @@ export default function AdminReportsPage() {
                   <CardTitle>{post.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{post.content}</p>
+                  {/* <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{post.content}</p> */}
                   <p className="text-xs text-gray-500">
                     Reported {post.reports.length} times
                   </p>
+                  <h3 className="text-sm font-semibold mb-1">Report Reasons:</h3>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                  {post.reports.map((report, index) => (
+                    <li key={index}>
+                      - {report.reason} <span className="text-gray-500">({new Date(report.createdAt).toLocaleString()})</span>
+                    </li>
+                  ))}
+                </ul>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">
                   <Button
@@ -147,14 +156,10 @@ export default function AdminReportsPage() {
               </Card>
             </HoverCardTrigger>
             <HoverCardContent>
-              <h3 className="text-sm font-semibold mb-2">Report Reasons</h3>
-              <ul className="text-xs text-muted-foreground space-y-1">
-                {post.reports.map((report, index) => (
-                  <li key={index}>
-                    - {report.reason} <span className="text-gray-500">({new Date(report.createdAt).toLocaleString()})</span>
-                  </li>
-                ))}
-              </ul>
+              <h3 className="text-sm font-semibold mb-2">Blog Description</h3>
+              <p className="text-xs text-muted-foreground">
+                {post.description}
+              </p>
             </HoverCardContent>
           </HoverCard>
         ))}
@@ -171,10 +176,18 @@ export default function AdminReportsPage() {
                 onClick={() => redirectToContent("comment", comment.id, comment.postId)}
               >
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-2 line-clamp-3">{comment.content}</p>
+                  {/* <p className="text-sm text-muted-foreground mb-2 line-clamp-3">{comment.content}</p> */}
                   <p className="text-xs text-gray-500">
                     Reported {comment.reports.length} times
                   </p>
+                  <h3 className="text-sm font-semibold mb-1">Report Reasons:</h3>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    {comment.reports.map((report, index) => (
+                      <li key={index}>
+                        - {report.reason} <span className="text-gray-500">({new Date(report.createdAt).toLocaleString()})</span>
+                      </li>
+                    ))}
+                  </ul>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">
                   <Button
@@ -190,14 +203,10 @@ export default function AdminReportsPage() {
               </Card>
             </HoverCardTrigger>
             <HoverCardContent>
-              <h3 className="text-sm font-semibold mb-2">Report Reasons</h3>
-              <ul className="text-xs text-muted-foreground space-y-1">
-                {comment.reports.map((report, index) => (
-                  <li key={index}>
-                    - {report.reason} <span className="text-gray-500">({new Date(report.createdAt).toLocaleString()})</span>
-                  </li>
-                ))}
-              </ul>
+              <h3 className="text-sm font-semibold mb-2">Comment Comment</h3>
+              <p className="text-xs text-muted-foreground">
+                {comment.content}
+              </p>
             </HoverCardContent>
           </HoverCard>
         ))}
