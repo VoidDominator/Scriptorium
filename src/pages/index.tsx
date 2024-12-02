@@ -5,19 +5,45 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouter } from "next/router";
 import { FaTwitter, FaGithub, FaYoutube } from "react-icons/fa";
+import { useState } from "react";
 
 const Homepage: FC = () => {
   const router = useRouter();
+  const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  {/* The abandoned code of search bar*/}
-  // const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (event.key === "Enter") {
-  //     const query = (event.target as HTMLInputElement).value;
-  //     if (query.trim()) {
-  //       router.push(`/search?query=${encodeURIComponent(query)}`);
-  //     }
-  //   }
-  // };
+  const handleFeedbackSubmit = async () => {
+    if (!feedback.trim()) {
+      alert("Please enter your feedback.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/send-feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ feedback }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send feedback");
+      }
+
+      setFeedback("");
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error("Error sending feedback:", err);
+      alert("Failed to send feedback. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -170,7 +196,31 @@ const Homepage: FC = () => {
           </Card>
         </div>
       </section>
-
+      
+      {/* Feedback Section */}
+      <section className="my-12 text-center">
+        <h2 className="text-2xl font-bold">We Value Your Feedback</h2>
+          <p className="text-gray-600 mt-2">Let us know how we can improve!</p>
+            <div className="mt-4">
+              <textarea
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={4}
+                className="w-full max-w-md p-2 border border-gray-300 rounded-md"
+                placeholder="Enter your feedback here..."
+              ></textarea>
+            </div>
+            <div className="mt-4">
+          <Button
+            onClick={handleFeedbackSubmit}
+            disabled={loading}
+            className="px-6 py-2"
+          >
+          {loading ? "Sending..." : "Submit Feedback"}
+          </Button>
+        </div>
+      {success && <p className="mt-2 text-green-500">Feedback sent successfully!</p>}
+      </section>
       
 
       {/* Footer Section */}
